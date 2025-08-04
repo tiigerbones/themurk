@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "murk",
+	"version": "${version}",
+	"name": "The Murk",
+	"description": "A horror-themed Minecraft mod that punishes players for lingering in complete darkness.",
+	"authors": [
+		"tiigerbones"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/murk/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.enchantedwisp.murk.TheMurk"
+		]
+	},
+	"mixins": [
+		"murk.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*",
+		"cardinal-components-base": ">=5.2.3",
+		"cardinal-components-entity": ">=5.2.3",
+		"cardinal-components-world": ">=5.2.3",
+		"lodestone": ">=1.6.2.3"
+	},
+	"suggests": {
+		"lambdynamiclights": "*"
+	}
+}
