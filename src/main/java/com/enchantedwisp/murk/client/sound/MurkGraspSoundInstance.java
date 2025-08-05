@@ -1,4 +1,4 @@
-package com.enchantedwisp.murk.client;
+package com.enchantedwisp.murk.client.sound;
 
 import com.enchantedwisp.murk.registry.Sounds;
 import net.minecraft.client.sound.MovingSoundInstance;
@@ -24,7 +24,7 @@ public class MurkGraspSoundInstance extends MovingSoundInstance {
     @Override
     public void tick() {
         if (!this.player.isAlive() || !this.player.hasStatusEffect(com.enchantedwisp.murk.registry.Effects.MURKS_GRASP)) {
-            this.setDone(); // Stop sound if player is dead or effect is gone
+            this.setDone(); // Stop sound if player is dead or the effect is gone
         } else {
             // Update sound position to follow the player
             this.x = this.player.getX();

@@ -1,4 +1,4 @@
-package com.enchantedwisp.murk.client;
+package com.enchantedwisp.murk.client.sound;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.SoundManager;

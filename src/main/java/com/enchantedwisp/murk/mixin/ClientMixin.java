@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import team.lodestar.lodestone.handlers.ScreenshakeHandler;
+import team.lodestar.lodestone.systems.easing.Easing;
 import team.lodestar.lodestone.systems.screenshake.ScreenshakeInstance;
 
 @Mixin(InGameHud.class)
@@ -18,10 +19,10 @@ public class ClientMixin {
         PlayerEntity player = net.minecraft.client.MinecraftClient.getInstance().player;
         if (player != null && player.hasStatusEffect(Effects.MURKS_GRASP)) {
             // Apply subtle screen shake
-            ScreenshakeInstance shake = new ScreenshakeInstance(20); // 1 second
+            ScreenshakeInstance shake = new ScreenshakeInstance(20);
+            shake.setEasing(Easing.SINE_IN_OUT); // Smooth easing for ramp-up and ramp-down
             shake.setIntensity(0.01f); // Subtle shake
             ScreenshakeHandler.addScreenshake(shake);
         }
     }
-
 }
