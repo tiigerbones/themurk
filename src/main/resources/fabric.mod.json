@@ -17,6 +17,9 @@
 	"entrypoints": {
 		"main": [
 			"com.enchantedwisp.murk.TheMurk"
+		],
+		"client": [
+			"com.enchantedwisp.murk.client.TheMurkClient"
 		]
 	},
 	"mixins": [

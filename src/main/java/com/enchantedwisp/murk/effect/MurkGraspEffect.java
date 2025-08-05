@@ -11,6 +11,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class MurkGraspEffect extends StatusEffect {
@@ -29,17 +30,7 @@ public class MurkGraspEffect extends StatusEffect {
 
     @Override
     public void applyUpdateEffect(LivingEntity entity, int amplifier) {
-        // Apply slowness via attribute (handled by super)
-        // Apply blindness effect
-        if (entity instanceof PlayerEntity) {
-            entity.addStatusEffect(new StatusEffectInstance(
-                    StatusEffects.BLINDNESS,
-                    99, //
-                    0, // Amplifier 0 (base level)
-                    false, // Not ambient
-                    false // Hide particles
-            ));
-        }
+        // Server-side: Only apply slowness (handled by super)
     }
 
     @Override
@@ -50,10 +41,18 @@ public class MurkGraspEffect extends StatusEffect {
     @Override
     public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
         super.onApplied(entity, attributes, amplifier);
-        if (entity instanceof PlayerEntity player) {
-            player.sendMessage(
-                    Text.literal("You are gripped by Murk’s Grasp!")
-            );
+        if (entity instanceof PlayerEntity player && !entity.getWorld().isClient) {
+            // Apply blindness with the same duration as Murk’s Grasp
+            player.addStatusEffect(new StatusEffectInstance(
+                    StatusEffects.BLINDNESS,
+                    Objects.requireNonNull(player.getStatusEffect(this)).getDuration(),
+                    0, // Amplifier 0 (base level)
+                    false, // Not ambient
+                    false // Hide particles
+            ));
+
+            // Send a message
+            player.sendMessage(Text.literal("You are gripped by Murk’s Grasp!"));
         }
     }
 }

@@ -1,0 +1,10 @@
+{
+  "murk_whispers": {
+    "sounds": [
+      {
+      "name": "murk:murk_whispers",
+      "stream": false
+      }
+    ]
+  }
+}
