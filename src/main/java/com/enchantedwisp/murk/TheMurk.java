@@ -1,6 +1,7 @@
 package com.enchantedwisp.murk;
 
 import com.enchantedwisp.murk.config.MurkConfig;
+import com.enchantedwisp.murk.registry.DamageTypes;
 import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.registry.Sounds;
 import com.enchantedwisp.murk.util.LightLevelTracker;
@@ -31,6 +32,9 @@ public class TheMurk implements ModInitializer {
 
 		// Register sounds
 		Sounds.register();
+
+		// Register damage types
+		DamageTypes.register();
 
 		// Register light level tracker
 		LightLevelTracker.register();

@@ -27,6 +27,7 @@ public class LightLevelTracker {
     private static final Map<UUID, Integer> playerLowLightTicks = new HashMap<>();
     private static final Map<UUID, Boolean> playerWarned = new HashMap<>();
     private static final Map<UUID, Boolean> playerDurationReduced = new HashMap<>();
+    private static final Map<UUID, Integer> playerEffectTicks = new HashMap<>();
 
     public static void register() {
         LOGGER.info("Registering LightLevelTracker");
@@ -87,7 +88,11 @@ public class LightLevelTracker {
                             ));
                             LOGGER.info("Applied MurksGraspEffect (infinite) to player {}", player.getName().getString());
                             resetPlayer(playerId); // Reset timer after applying effect
+                            playerEffectTicks.put(playerId, 0); // Initialize effect timer
                         }
+                    } else {
+                        // Increment effect duration
+                        playerEffectTicks.put(playerId, playerEffectTicks.getOrDefault(playerId, 0) + 1);
                     }
                     // Reset duration reduction flag when entering low light
                     playerDurationReduced.remove(playerId);
@@ -115,6 +120,7 @@ public class LightLevelTracker {
                             ));
                         }
                         playerDurationReduced.put(playerId, true);
+                        playerEffectTicks.put(playerId, 0); // Reset effect ticks when entering lit area
                         LOGGER.debug("Reduced MurksGraspEffect and {} duration to {} ticks for player {}",
                                 config.blindnessEnabled ? "Blindness" : "no Blindness", litAreaDurationTicks, player.getName().getString());
                     }
@@ -122,9 +128,10 @@ public class LightLevelTracker {
                     resetPlayer(playerId);
                 }
 
-                // Clear duration reduction flag if effect expires
+                // Clear duration reduction flag and effect ticks if effect expires
                 if (!player.hasStatusEffect(Effects.MURKS_GRASP)) {
                     playerDurationReduced.remove(playerId);
+                    playerEffectTicks.remove(playerId);
                 }
             }
         });
@@ -133,6 +140,7 @@ public class LightLevelTracker {
     private static void resetPlayer(UUID playerId) {
         playerLowLightTicks.remove(playerId);
         playerWarned.remove(playerId);
+        playerEffectTicks.remove(playerId);
         LOGGER.debug("Reset light tracking for player UUID {}", playerId);
     }
 }

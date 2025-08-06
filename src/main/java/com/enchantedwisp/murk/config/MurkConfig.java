@@ -6,7 +6,6 @@ import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,6 +27,18 @@ public class MurkConfig implements ConfigData {
     @Comment("Whether Murk's Grasp effect also applies Blindness. Default: true")
     public boolean blindnessEnabled = true;
 
+    @Comment("Base damage per interval when Murk's Grasp effect is applied. Default: 0.5")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
+    public float baseDamage = 0.5f;
+
+    @Comment("Maximum damage per interval after 60 seconds of Murk's Grasp effect. Default: 2.0")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 20)
+    public float maxDamage = 2.0f;
+
+    @Comment("Interval between damage ticks (in seconds) for Murk's Grasp effect. Default: 3.0")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public double damageInterval = 3.0;
+
     @Override
     public void validatePostLoad() throws ValidationException {
         // Correct invalid values where possible
@@ -37,7 +48,7 @@ public class MurkConfig implements ConfigData {
         }
         if (litAreaEffectDuration <= 0 || Double.isNaN(litAreaEffectDuration)) {
             TheMurk.LOGGER.warn("Correcting invalid litAreaEffectDuration: {}. Must be positive.", litAreaEffectDuration);
-            litAreaEffectDuration = 4.0; // Reset to default
+            litAreaEffectDuration = 4.0;
         }
         if (dimensions == null || dimensions.isEmpty()) {
             TheMurk.LOGGER.warn("Correcting invalid dimensions: {}. Must be a non-empty list.", dimensions);
@@ -50,6 +61,18 @@ public class MurkConfig implements ConfigData {
         if (blindnessEnabled) {
             TheMurk.LOGGER.warn("Correcting invalid blindnessEnabled: null. Must be true or false.");
             blindnessEnabled = true;
+        }
+        if (baseDamage < 0 || baseDamage > 10) {
+            TheMurk.LOGGER.warn("Correcting invalid baseDamage: {}. Must be between 0 and 10.", baseDamage);
+            baseDamage = Math.max(0, Math.min(10, baseDamage));
+        }
+        if (maxDamage < baseDamage || maxDamage > 20) {
+            TheMurk.LOGGER.warn("Correcting invalid maxDamage: {}. Must be >= baseDamage and <= 20.", maxDamage);
+            maxDamage = Math.max(baseDamage, Math.min(20, maxDamage));
+        }
+        if (damageInterval < 1 || damageInterval > 10 || Double.isNaN(damageInterval)) {
+            TheMurk.LOGGER.warn("Correcting invalid damageInterval: {}. Must be between 1 and 10.", damageInterval);
+            damageInterval = 3.0;
         }
     }
 }
