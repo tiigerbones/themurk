@@ -11,8 +11,8 @@ public class TestPostProcessor extends PostProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger("murk_test_shader");
 
     static {
-        INSTANCE.setActive(true); // Always active for testing
-        LOGGER.info("TestPostProcessor instantiated, set to active");
+        INSTANCE.setActive(false); // Always active for testing
+        LOGGER.info("ChromaticAberrationPostProcessor instantiated, set to inactive");
     }
 
     @Override
