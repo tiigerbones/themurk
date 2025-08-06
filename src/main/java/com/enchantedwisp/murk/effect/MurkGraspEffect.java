@@ -1,5 +1,6 @@
 package com.enchantedwisp.murk.effect;
 
+import com.enchantedwisp.murk.config.MurkConfig;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.AttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -42,6 +43,7 @@ public class MurkGraspEffect extends StatusEffect {
     public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
         super.onApplied(entity, attributes, amplifier);
         if (entity instanceof PlayerEntity player && !entity.getWorld().isClient) {
+            // Only send message and apply blindness if the player didn't already have the effect
             if (player.getStatusEffect(this) == null || Objects.requireNonNull(player.getStatusEffect(this)).getDuration() == -1) {
                 player.addStatusEffect(new StatusEffectInstance(
                         StatusEffects.BLINDNESS,
@@ -51,8 +53,13 @@ public class MurkGraspEffect extends StatusEffect {
                         false // Hide particles
                 ));
 
-                // Send message only for new application
-                player.sendMessage(Text.literal("You are gripped by Murk’s Grasp!"));
+                // Send a message only if a warning text is enabled
+                if (MurkConfig.getInstance().enableWarningText) {
+                    player.sendMessage(
+                            Text.literal("You are in Murk’s Grasp!").styled(style -> style.withColor(0xFF5555)),
+                            false
+                    );
+                }
             }
         }
     }
