@@ -1,10 +1,12 @@
 {
   "murk_whispers": {
     "sounds": [
-      {
-      "name": "murk:murk_whispers",
-      "stream": false
-      }
+      "murk:murk_whispers"
+    ]
+  },
+  "murk_vanish": {
+    "sounds": [
+      "murk:murk_vanish"
     ]
   }
 }
