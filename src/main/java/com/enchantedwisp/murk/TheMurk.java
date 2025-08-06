@@ -4,6 +4,7 @@ import com.enchantedwisp.murk.config.MurkConfig;
 import com.enchantedwisp.murk.registry.DamageTypes;
 import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.registry.Sounds;
+import com.enchantedwisp.murk.util.DynamicLightingHandler;
 import com.enchantedwisp.murk.util.LightLevelTracker;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
@@ -38,5 +39,8 @@ public class TheMurk implements ModInitializer {
 
 		// Register light level tracker
 		LightLevelTracker.register();
+
+		// Register dynamic lighting handler
+		DynamicLightingHandler.register();
 	}
 }

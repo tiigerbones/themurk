@@ -39,6 +39,12 @@ public class MurkConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
     public double damageInterval = 3.0;
 
+    @Comment("Enable dynamic lighting support for held and trinket items when LambDynamicLights or Sodium Dynamic Lights is installed. Default: true")
+    public boolean enableDynamicLighting = true;
+
+    @Comment("Enable light level checks when the player is underwater. Default: false")
+    public boolean enableUnderwaterLightCheck = false;
+
     @Override
     public void validatePostLoad() throws ValidationException {
         // Correct invalid values where possible
@@ -53,14 +59,6 @@ public class MurkConfig implements ConfigData {
         if (dimensions == null || dimensions.isEmpty()) {
             TheMurk.LOGGER.warn("Correcting invalid dimensions: {}. Must be a non-empty list.", dimensions);
             dimensions = Arrays.asList("minecraft:overworld");
-        }
-        if (enableWarningText) {
-            TheMurk.LOGGER.warn("Correcting invalid enableWarningText: null. Must be true or false.");
-            enableWarningText = true;
-        }
-        if (blindnessEnabled) {
-            TheMurk.LOGGER.warn("Correcting invalid blindnessEnabled: null. Must be true or false.");
-            blindnessEnabled = true;
         }
         if (baseDamage < 0 || baseDamage > 10) {
             TheMurk.LOGGER.warn("Correcting invalid baseDamage: {}. Must be between 0 and 10.", baseDamage);

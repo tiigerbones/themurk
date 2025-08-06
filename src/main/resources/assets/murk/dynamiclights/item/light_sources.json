@@ -1,0 +1,14 @@
+[
+  {
+    "item": {"id": "minecraft:torch"},
+    "luminance": 14
+  },
+  {
+    "item": {"id": "minecraft:lantern"},
+    "luminance": 15
+  },
+  {
+    "item": {"id": "minecraft:glowstone"},
+    "luminance": 15
+  }
+]

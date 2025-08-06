@@ -55,8 +55,21 @@ public class LightLevelTracker {
                     continue;
                 }
 
-                // Check total light level (block + sky) at player's position
-                int lightLevel = world.getLightLevel(pos);
+                // Skip light checks if underwater and not enabled
+                if (!config.enableUnderwaterLightCheck && player.isSubmergedInWater()) {
+                    resetPlayer(playerId);
+                    if (player.hasStatusEffect(Effects.MURKS_GRASP)) {
+                        player.removeStatusEffect(Effects.MURKS_GRASP);
+                        if (config.blindnessEnabled) {
+                            player.removeStatusEffect(StatusEffects.BLINDNESS);
+                        }
+                        LOGGER.debug("Removed MurksGraspEffect for player {} underwater", player.getName().getString());
+                    }
+                    continue;
+                }
+
+                // Check total light level (block + item)
+                int lightLevel = getEffectiveLightLevel(player, config);
                 LOGGER.debug("Player {} at {} in dimension {} has light level {}",
                         player.getName().getString(), pos, dimensionId, lightLevel);
 
@@ -70,7 +83,7 @@ public class LightLevelTracker {
                         // Send warning message after 5 seconds if enabled
                         if (config.enableWarningText && ticks >= TICKS_UNTIL_WARNING && !playerWarned.getOrDefault(playerId, false)) {
                             player.sendMessage(
-                                    Text.literal("Find a lit area soon!").styled(style -> style.withColor(0xFF5555)),
+                                    Text.literal("An evil presence lurks in the dark nearby...").styled(style -> style.withColor(0xFF5555)),
                                     false
                             );
                             playerWarned.put(playerId, true);
@@ -86,6 +99,15 @@ public class LightLevelTracker {
                                     false, // Not ambient
                                     true // Show particles
                             ));
+                            if (config.blindnessEnabled) {
+                                player.addStatusEffect(new StatusEffectInstance(
+                                        StatusEffects.BLINDNESS,
+                                        -1, // Infinite duration
+                                        0, // Amplifier 0
+                                        false, // Not ambient
+                                        false // Hide particles
+                                ));
+                            }
                             LOGGER.info("Applied MurksGraspEffect (infinite) to player {}", player.getName().getString());
                             resetPlayer(playerId); // Reset timer after applying effect
                             playerEffectTicks.put(playerId, 0); // Initialize effect timer
@@ -135,6 +157,18 @@ public class LightLevelTracker {
                 }
             }
         });
+    }
+
+    private static int getEffectiveLightLevel(ServerPlayerEntity player, MurkConfig config) {
+        int blockLight = player.getWorld().getLightLevel(player.getBlockPos());
+        int itemLight = config.enableDynamicLighting && DynamicLightingHandler.isDynamicLightingModLoaded()
+                ? DynamicLightingHandler.getPlayerLightLevel(player)
+                : 0;
+        int totalLight = Math.max(blockLight, itemLight);
+
+        LOGGER.debug("Player {}: Block light {}, Item light {}, Total light {}",
+                player.getName().getString(), blockLight, itemLight, totalLight);
+        return totalLight;
     }
 
     private static void resetPlayer(UUID playerId) {
