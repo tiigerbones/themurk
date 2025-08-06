@@ -1,7 +1,9 @@
 package com.enchantedwisp.murk;
 
+import com.enchantedwisp.murk.config.MurkConfig;
 import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.registry.Sounds;
+import com.enchantedwisp.murk.util.LightLevelTracker;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,9 @@ public class TheMurk implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Initializing The Murk");
+		MurkConfig.getInstance(); // Load config
 		Effects.register();
 		Sounds.register();
+		LightLevelTracker.register();
 	}
 }

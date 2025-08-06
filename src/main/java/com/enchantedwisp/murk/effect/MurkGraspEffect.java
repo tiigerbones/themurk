@@ -42,17 +42,18 @@ public class MurkGraspEffect extends StatusEffect {
     public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
         super.onApplied(entity, attributes, amplifier);
         if (entity instanceof PlayerEntity player && !entity.getWorld().isClient) {
-            // Apply blindness with the same duration as Murk’s Grasp
-            player.addStatusEffect(new StatusEffectInstance(
-                    StatusEffects.BLINDNESS,
-                    Objects.requireNonNull(player.getStatusEffect(this)).getDuration(),
-                    0, // Amplifier 0 (base level)
-                    false, // Not ambient
-                    false // Hide particles
-            ));
+            if (player.getStatusEffect(this) == null || Objects.requireNonNull(player.getStatusEffect(this)).getDuration() == -1) {
+                player.addStatusEffect(new StatusEffectInstance(
+                        StatusEffects.BLINDNESS,
+                        Objects.requireNonNull(player.getStatusEffect(this)).getDuration(),
+                        0, // Amplifier 0 (base level)
+                        false, // Not ambient
+                        false // Hide particles
+                ));
 
-            // Send a message
-            player.sendMessage(Text.literal("You are gripped by Murk’s Grasp!"));
+                // Send message only for new application
+                player.sendMessage(Text.literal("You are gripped by Murk’s Grasp!"));
+            }
         }
     }
 }
