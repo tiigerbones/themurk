@@ -1,125 +1,55 @@
 package com.enchantedwisp.murk.config;
 
 import com.enchantedwisp.murk.TheMurk;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import net.fabricmc.loader.api.FabricLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import me.shedaniel.autoconfig.ConfigData;
+import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+
 import java.util.Arrays;
 import java.util.List;
 
-public class MurkConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TheMurk.MOD_ID + "_config");
-    private static final File CONFIG_FILE = new File(FabricLoader.getInstance().getConfigDir().toFile(), "murk.json");
-    private static final File README_FILE = new File(FabricLoader.getInstance().getConfigDir().toFile(), "murk_config_readme.txt");
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static MurkConfig instance;
-
+@Config(name = "murk")
+public class MurkConfig implements ConfigData {
+    @Comment("Light level below which Murk's Grasp effect is triggered (0-15). Default: 3")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 15)
     public int lightThreshold = 3;
+
+    @Comment("Whether to show warning and effect application messages in chat. Default: true")
     public boolean enableWarningText = true;
-    public double litAreaEffectDuration = 4.0; // Duration in seconds
+
+    @Comment("Duration (in seconds) that effects persist after entering a lit area. Default: 4.0")
+    public double litAreaEffectDuration = 4.0;
+
+    @Comment("List of dimension IDs where the effect applies (e.g., \"minecraft:overworld\", \"minecraft:the_nether\"). Default: [\"minecraft:overworld\"]")
     public List<String> dimensions = Arrays.asList("minecraft:overworld");
 
-    public static MurkConfig getInstance() {
-        if (instance == null) {
-            instance = loadConfig();
-        }
-        return instance;
-    }
+    @Comment("Whether Murk's Grasp effect also applies Blindness. Default: true")
+    public boolean blindnessEnabled = true;
 
-    private static MurkConfig loadConfig() {
-        MurkConfig config = new MurkConfig();
-        if (CONFIG_FILE.exists()) {
-            try (FileReader reader = new FileReader(CONFIG_FILE)) {
-                MurkConfig loadedConfig = GSON.fromJson(reader, MurkConfig.class);
-                if (isValidConfig(loadedConfig)) {
-                    config = loadedConfig;
-                    LOGGER.info("Loaded config from {}", CONFIG_FILE.getPath());
-                } else {
-                    LOGGER.warn("Config file is outdated or invalid, resetting to default values");
-                    config.saveConfig();
-                    saveReadme();
-                }
-            } catch (IOException | NullPointerException e) {
-                LOGGER.error("Failed to load config file, resetting to default values", e);
-                config.saveConfig();
-                saveReadme();
-            }
-        } else {
-            LOGGER.info("Config file not found, creating default at {}", CONFIG_FILE.getPath());
-            config.saveConfig();
-            saveReadme();
+    @Override
+    public void validatePostLoad() throws ValidationException {
+        // Correct invalid values where possible
+        if (lightThreshold < 0 || lightThreshold > 15) {
+            TheMurk.LOGGER.warn("Correcting invalid lightThreshold: {}. Must be between 0 and 15.", lightThreshold);
+            lightThreshold = Math.max(0, Math.min(15, lightThreshold));
         }
-        return config;
-    }
-
-    private static boolean isValidConfig(MurkConfig config) {
-        if (config == null) {
-            return false;
+        if (litAreaEffectDuration <= 0 || Double.isNaN(litAreaEffectDuration)) {
+            TheMurk.LOGGER.warn("Correcting invalid litAreaEffectDuration: {}. Must be positive.", litAreaEffectDuration);
+            litAreaEffectDuration = 4.0; // Reset to default
         }
-        // Validate lightThreshold (0-15)
-        if (config.lightThreshold < 0 || config.lightThreshold > 15) {
-            LOGGER.warn("Invalid lightThreshold: {}. Must be between 0 and 15.", config.lightThreshold);
-            return false;
+        if (dimensions == null || dimensions.isEmpty()) {
+            TheMurk.LOGGER.warn("Correcting invalid dimensions: {}. Must be a non-empty list.", dimensions);
+            dimensions = Arrays.asList("minecraft:overworld");
         }
-        // Validate enableWarningText (non-null)
-        if (config.enableWarningText) {
-            LOGGER.warn("Invalid enableWarningText: null. Must be true or false.");
-            return false;
+        if (enableWarningText) {
+            TheMurk.LOGGER.warn("Correcting invalid enableWarningText: null. Must be true or false.");
+            enableWarningText = true;
         }
-        // Validate litAreaEffectDuration (positive number)
-        if (config.litAreaEffectDuration <= 0 || Double.isNaN(config.litAreaEffectDuration)) {
-            LOGGER.warn("Invalid litAreaEffectDuration: {}. Must be positive.", config.litAreaEffectDuration);
-            return false;
-        }
-        // Validate dimensions (non-empty list)
-        if (config.dimensions == null || config.dimensions.isEmpty()) {
-            LOGGER.warn("Invalid dimensions: {}. Must be a non-empty list of dimension IDs.", config.dimensions);
-            return false;
-        }
-        return true;
-    }
-
-    public void saveConfig() {
-        try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
-            GSON.toJson(this, writer);
-            LOGGER.info("Saved config to {}", CONFIG_FILE.getPath());
-        } catch (IOException e) {
-            LOGGER.error("Failed to save config file", e);
-        }
-    }
-
-    private static void saveReadme() {
-        try (FileWriter writer = new FileWriter(README_FILE)) {
-            writer.write(
-                    """
-                            Murk Mod Configuration
-                            This file explains the options in murk.json.
-                            
-                            lightThreshold: Light level below which Murk's Grasp effect is triggered (0-15). Default: 3
-                              - Set the light level threshold for applying the effect in dark areas.
-                              - Example: 3 means the effect triggers in areas with light level below 3.
-                            
-                            enableWarningText: Whether to show warning and effect application messages in chat. Default: true
-                              - Set to false to disable messages like 'Something lurks in the dark....' and 'You are gripped by Murk’s Grasp!'.
-                            
-                            litAreaEffectDuration: Duration (in seconds) that effects persist after entering a lit area. Default: 4.0
-                              - Controls how long Murk's Grasp and Blindness effects last after moving to a lit area.
-                              - Example: 2.0 means effects last 2 seconds.
-                            
-                            dimensions: List of dimension IDs where the effect applies (e.g., 'minecraft:overworld', 'minecraft:the_nether'). Default: ['minecraft:overworld']
-                              - Specifies which dimensions the effect applies in.
-                              - Example: ['minecraft:overworld', 'minecraft:the_nether'] enables the effect in both dimensions."""
-            );
-            LOGGER.info("Saved config readme to {}", README_FILE.getPath());
-        } catch (IOException e) {
-            LOGGER.error("Failed to save config readme file", e);
+        if (blindnessEnabled) {
+            TheMurk.LOGGER.warn("Correcting invalid blindnessEnabled: null. Must be true or false.");
+            blindnessEnabled = true;
         }
     }
 }

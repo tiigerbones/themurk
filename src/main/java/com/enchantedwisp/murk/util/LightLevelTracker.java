@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import me.shedaniel.autoconfig.AutoConfig;
+
 public class LightLevelTracker {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheMurk.MOD_ID + "_light_tracker");
     private static final int TICKS_UNTIL_WARNING = 100; // 5 seconds
@@ -30,7 +32,13 @@ public class LightLevelTracker {
         LOGGER.info("Registering LightLevelTracker");
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            MurkConfig config = MurkConfig.getInstance();
+            MurkConfig config;
+            try {
+                config = AutoConfig.getConfigHolder(MurkConfig.class).getConfig();
+            } catch (Exception e) {
+                LOGGER.error("Failed to load MurkConfig, using default values", e);
+                config = new MurkConfig(); // Fallback to default config
+            }
             int lightThreshold = config.lightThreshold;
             int litAreaDurationTicks = (int) (config.litAreaEffectDuration * 20); // Convert seconds to ticks
 
@@ -58,10 +66,10 @@ public class LightLevelTracker {
                         int ticks = playerLowLightTicks.getOrDefault(playerId, 0) + 1;
                         playerLowLightTicks.put(playerId, ticks);
 
-                        // Send a warning message after 5 seconds if enabled
+                        // Send warning message after 5 seconds if enabled
                         if (config.enableWarningText && ticks >= TICKS_UNTIL_WARNING && !playerWarned.getOrDefault(playerId, false)) {
                             player.sendMessage(
-                                    Text.literal("Something lurks in the dark....").styled(style -> style.withColor(0xFF5555)),
+                                    Text.literal("Find a lit area soon!").styled(style -> style.withColor(0xFF5555)),
                                     false
                             );
                             playerWarned.put(playerId, true);
@@ -95,18 +103,20 @@ public class LightLevelTracker {
                                 false, // Not ambient
                                 true // Show particles
                         ));
-                        // Remove and reapply Blindness effect with configured duration
-                        player.removeStatusEffect(StatusEffects.BLINDNESS);
-                        player.addStatusEffect(new StatusEffectInstance(
-                                StatusEffects.BLINDNESS,
-                                litAreaDurationTicks,
-                                0, // Amplifier 0
-                                false, // Not ambient
-                                false // Hide particles
-                        ));
+                        // Remove and reapply Blindness effect with configured duration if enabled
+                        if (config.blindnessEnabled) {
+                            player.removeStatusEffect(StatusEffects.BLINDNESS);
+                            player.addStatusEffect(new StatusEffectInstance(
+                                    StatusEffects.BLINDNESS,
+                                    litAreaDurationTicks,
+                                    0, // Amplifier 0
+                                    false, // Not ambient
+                                    false // Hide particles
+                            ));
+                        }
                         playerDurationReduced.put(playerId, true);
-                        LOGGER.debug("Reduced MurksGraspEffect and Blindness duration to {} ticks for player {}",
-                                litAreaDurationTicks, player.getName().getString());
+                        LOGGER.debug("Reduced MurksGraspEffect and {} duration to {} ticks for player {}",
+                                config.blindnessEnabled ? "Blindness" : "no Blindness", litAreaDurationTicks, player.getName().getString());
                     }
                     // Reset timer and warning state
                     resetPlayer(playerId);
