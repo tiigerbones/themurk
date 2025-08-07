@@ -47,12 +47,12 @@ public class MurkGraspEffect extends StatusEffect {
 
             // Apply damage at configurable interval, only if effect duration is infinite
             StatusEffectInstance effect = player.getStatusEffect(this);
-            int damageIntervalTicks = (int) (config.damageInterval * 20); // Convert seconds to ticks
+            int damageIntervalTicks = (int) (config.effect_damageInterval * 20); // Convert seconds to ticks
             if (effect != null && effect.getDuration() == -1 && entity.getWorld().getTime() % damageIntervalTicks == 0) {
                 int duration = effect.getDuration();
                 // For infinite duration (-1), treat as max scaling
                 float progress = duration == -1 ? 1.0f : Math.min(1.0f, (float)(MAX_SCALING_TICKS - duration) / MAX_SCALING_TICKS);
-                float damage = config.baseDamage + (config.maxDamage - config.baseDamage) * progress;
+                float damage = config.effect_baseDamage + (config.effect_maxDamage - config.effect_baseDamage) * progress;
                 player.damage(DamageTypes.of(player.getWorld()), damage);
                 TheMurk.LOGGER.debug("Applied {} damage to player {} with Murk's Grasp (progress: {})",
                         damage, player.getName().getString(), progress);
@@ -78,7 +78,7 @@ public class MurkGraspEffect extends StatusEffect {
             }
             // Only send message and apply blindness if the player didn't already have the effect
             if (player.getStatusEffect(this) == null || Objects.requireNonNull(player.getStatusEffect(this)).getDuration() == -1) {
-                if (config.blindnessEnabled) {
+                if (config.effect_blindnessEnabled) {
                     player.addStatusEffect(new StatusEffectInstance(
                             StatusEffects.BLINDNESS,
                             Objects.requireNonNull(player.getStatusEffect(this)).getDuration(),
@@ -88,7 +88,7 @@ public class MurkGraspEffect extends StatusEffect {
                     ));
                 }
                 // Send message only if warning text is enabled
-                if (config.enableWarningText) {
+                if (config.general_enableWarningText) {
                     player.sendMessage(
                             Text.literal("You are gripped by Murk’s Grasp!").styled(style -> style.withColor(0xFF5555)),
                             false

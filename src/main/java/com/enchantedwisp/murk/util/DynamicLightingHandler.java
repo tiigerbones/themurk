@@ -4,7 +4,6 @@ import com.enchantedwisp.murk.TheMurk;
 import com.enchantedwisp.murk.config.MurkConfig;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
-import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -28,18 +27,11 @@ public class DynamicLightingHandler {
         isDynamicLightingModLoaded = isLambDynamicLightsLoaded() || isSodiumDynamicLightsLoaded();
         LOGGER.info("Dynamic lighting mod detected: {}", isDynamicLightingModLoaded ? "Yes" : "No");
 
-        // Load light sources from config
-        MurkConfig config;
-        try {
-            config = AutoConfig.getConfigHolder(MurkConfig.class).getConfig();
-        } catch (Exception e) {
-            LOGGER.error("Failed to load MurkConfig, using default values", e);
-            config = new MurkConfig();
-        }
-
-        for (MurkConfig.LightSource source : config.lightSources) {
-            if (source.id == null || source.id.isEmpty()) {
-                LOGGER.warn("Skipping invalid light source: Missing or empty ID");
+        // Load light sources from cached config
+        MurkConfig config = TheMurk.getConfig();
+        for (MurkConfig.LightSourceEntry source : config.lightSource_lightSources) {
+            if (source == null || source.id == null || source.id.isEmpty()) {
+                LOGGER.warn("Skipping invalid light source: Null or empty ID");
                 continue;
             }
             if (source.luminance < 0 || source.luminance > 15) {
@@ -53,22 +45,16 @@ public class DynamicLightingHandler {
     }
 
     public static int getPlayerLightLevel(PlayerEntity player) {
-        MurkConfig config;
-        try {
-            config = AutoConfig.getConfigHolder(MurkConfig.class).getConfig();
-        } catch (Exception e) {
-            LOGGER.error("Failed to load MurkConfig, using default values", e);
-            config = new MurkConfig();
-        }
-
-        // Skip light checks if underwater and not enabled
-        if (!config.enableUnderwaterLightCheck && player.isSubmergedInWater()) {
-            LOGGER.debug("Skipping light level check for player {}: Underwater with enableUnderwaterLightCheck=false", player.getName().getString());
+        if (!isDynamicLightingModLoaded) {
+            LOGGER.debug("Skipping light level check for player {}: No dynamic lighting mod loaded", player.getName().getString());
             return 0;
         }
 
-        if (!config.enableDynamicLighting || !isDynamicLightingModLoaded) {
-            LOGGER.debug("Skipping light level check for player {}: Dynamic lighting disabled or mod not loaded", player.getName().getString());
+        // Check underwater config
+        MurkConfig config = TheMurk.getConfig();
+        // Skip light checks if underwater and not enabled
+        if (!config.general_enableUnderwaterLightCheck && player.isSubmergedInWater()) {
+            LOGGER.debug("Skipping light level check for player {}: Underwater with general_enableUnderwaterLightCheck=false", player.getName().getString());
             return 0;
         }
 

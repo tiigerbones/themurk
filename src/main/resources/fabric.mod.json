@@ -8,8 +8,8 @@
 		"tiigerbones"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://modrinth.com/mod/the-murk",
+		"sources": "https://github.com/tiigerbones/themurk"
 	},
 	"license": "MIT",
 	"icon": "assets/murk/icon.png",
@@ -20,6 +20,9 @@
 		],
 		"client": [
 			"com.enchantedwisp.murk.client.TheMurkClient"
+		],
+		"modmenu": [
+			"com.enchantedwisp.murk.config.MurkModMenu"
 		]
 	},
 	"mixins": [
@@ -38,6 +41,7 @@
 	"suggests": {
 		"lambdynlights": ">=4.1.4+1.20.1",
 		"trinkets": ">=3.7.2",
-		"sodiumdynamiclights": ">=1.0.9"
+		"sodiumdynamiclights": ">=1.0.9",
+		"modmenu": ">=7.2.2"
 	}
 }

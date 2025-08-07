@@ -29,7 +29,9 @@ public class TheMurkClient implements ClientModInitializer {
         LOGGER.info("Initializing The Murk client");
 
         // Register post-processors
+        /* LOG FOR DEV
         LOGGER.info("Registering ChromaticAberrationPostProcessor");
+         */
         PostProcessHandler.addInstance(ChromaticAberrationPostProcessor.INSTANCE);
 
         // Register client tick event to toggle effects, sounds, and play murk_vanish when effect expires
@@ -42,10 +44,14 @@ public class TheMurkClient implements ClientModInitializer {
                 // Toggle ChromaticAberrationPostProcessor
                 if (hasMurkGrasp && !ChromaticAberrationPostProcessor.INSTANCE.isActive()) {
                     ChromaticAberrationPostProcessor.INSTANCE.setActive(true);
+                    /* LOG FOR DEV
                     LOGGER.debug("Enabled ChromaticAberrationPostProcessor for player {}", player.getName().getString());
+                     */
                 } else if (!hasMurkGrasp && ChromaticAberrationPostProcessor.INSTANCE.isActive()) {
                     ChromaticAberrationPostProcessor.INSTANCE.setActive(false);
+                    /* LOG FOR DEV
                     LOGGER.debug("Disabled ChromaticAberrationPostProcessor for player {}", player.getName().getString());
+                     */
                 }
 
                 // Manage sound effects
@@ -70,7 +76,9 @@ public class TheMurkClient implements ClientModInitializer {
                                     player.getZ()
                             )
                     );
+                    /* LOG FOR DEV
                     LOGGER.debug("Played murk_vanish sound for player {} as MurksGraspEffect expired", player.getName().getString());
+                     */
                 }
 
                 // Update effect tracking

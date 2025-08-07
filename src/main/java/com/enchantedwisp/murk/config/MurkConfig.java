@@ -6,124 +6,197 @@ import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Config(name = "murk")
 public class MurkConfig implements ConfigData {
     @Comment("Light level below which Murk's Grasp effect is triggered (0-15). Default: 3")
+    @ConfigEntry.Gui.Tooltip(count = 2)
+    @ConfigEntry.Gui.PrefixText
     @ConfigEntry.BoundedDiscrete(min = 0, max = 15)
-    public int lightThreshold = 3;
+    public int general_lightThreshold = 3;
 
     @Comment("Whether to show warning and effect application messages in chat. Default: true")
-    public boolean enableWarningText = true;
-
-    @Comment("Duration (in seconds) that effects persist after entering a lit area. Default: 4.0")
-    public double litAreaEffectDuration = 4.0;
+    @ConfigEntry.Gui.Tooltip
+    public boolean general_enableWarningText = true;
 
     @Comment("List of dimension IDs where the effect applies (e.g., \"minecraft:overworld\", \"minecraft:the_nether\"). Default: [\"minecraft:overworld\"]")
-    public List<String> dimensions = Arrays.asList("minecraft:overworld");
-
-    @Comment("Whether Murk's Grasp effect also applies Blindness. Default: true")
-    public boolean blindnessEnabled = true;
-
-    @Comment("Base damage per interval when Murk's Grasp effect is applied. Default: 0.5")
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
-    public float baseDamage = 0.5f;
-
-    @Comment("Maximum damage per interval after 60 seconds of Murk's Grasp effect. Default: 2.0")
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 20)
-    public float maxDamage = 2.0f;
-
-    @Comment("Interval between damage ticks (in seconds) for Murk's Grasp effect. Default: 3.0")
-    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
-    public double damageInterval = 3.0;
-
-    @Comment("Enable dynamic lighting support for held and trinket items when LambDynamicLights or Sodium Dynamic Lights is installed. Default: true")
-    public boolean enableDynamicLighting = true;
+    @ConfigEntry.Gui.Tooltip(count = 2)
+    public List<String> general_dimensions = new ArrayList<>(Arrays.asList("minecraft:overworld"));
 
     @Comment("Enable light level checks when the player is underwater. Default: false")
-    public boolean enableUnderwaterLightCheck = false;
+    @ConfigEntry.Gui.Tooltip
+    public boolean general_enableUnderwaterLightCheck = false;
 
     @Comment("Enable Murk's Grasp effect for players in Creative mode. Default: false")
-    public boolean enableCreativeEffect = false;
+    @ConfigEntry.Gui.Tooltip
+    public boolean general_enableCreativeEffect = false;
 
-    @Comment("List of items that emit light when held or in trinket slots. Format: {id: \"minecraft:torch\", luminance: 14, water_sensitive: true}")
-    public List<LightSource> lightSources = Arrays.asList(
-            new LightSource("minecraft:torch", 14, true),
-            new LightSource("minecraft:lantern", 15, false),
-            new LightSource("minecraft:glowstone", 15, false),
-            new LightSource("minecraft:dirt", 10, false)
-    );
+    @Comment("Duration (in seconds) that effects persist after entering a lit area. Default: 4.0")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.Gui.PrefixText
+    public double effect_litAreaEffectDuration = 4.0;
 
-    public static class LightSource {
-        @Comment("Item ID (e.g., \"minecraft:torch\")")
+    @Comment("Whether Murk's Grasp effect also applies Blindness. Default: true")
+    @ConfigEntry.Gui.Tooltip
+    public boolean effect_blindnessEnabled = true;
+
+    @Comment("Base damage per interval when Murk's Grasp effect is applied. Default: 0.5")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
+    public float effect_baseDamage = 0.5f;
+
+    @Comment("Maximum damage per interval after 60 seconds of Murk's Grasp effect. Default: 2.0")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 20)
+    public float effect_maxDamage = 2.0f;
+
+    @Comment("Interval between damage ticks (in seconds) for Murk's Grasp effect. Default: 3.0")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public double effect_damageInterval = 3.0;
+
+    @Comment("Radius (in blocks) to check for dropped luminescent items (e.g., dropped torches). Default: 7.0")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 16)
+    public double lightSource_droppedItemRadius = 5.0;
+
+    @Comment("Radius (in blocks) to check for nearby players holding luminescent items. Default: 7.0")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 16)
+    public double lightSource_nearbyPlayerRadius = 5.0;
+
+    @Comment("List of items that emit light when held, in trinket slots, dropped, or held by nearby players. Format: {id: \"minecraft:torch\", luminance: 14, water_sensitive: true} Make sure to create the correct json file in assets/murk/dynamiclights/item so the item actually emits light visually")
+    @ConfigEntry.Gui.Tooltip(count = 2)
+    public List<LightSourceEntry> lightSource_lightSources = new ArrayList<>(Arrays.asList(
+            new LightSourceEntry("minecraft:torch", 14, true),
+            new LightSourceEntry("minecraft:lantern", 15, false),
+            new LightSourceEntry("minecraft:glowstone", 15, false)
+    ));
+
+    public static class LightSourceEntry {
+        @ConfigEntry.Gui.Tooltip
         public String id;
-
-        @Comment("Light level emitted (0-15)")
+        @ConfigEntry.Gui.Tooltip
         @ConfigEntry.BoundedDiscrete(min = 0, max = 15)
         public int luminance;
-
-        @Comment("Whether the item stops emitting light underwater")
+        @ConfigEntry.Gui.Tooltip
         public boolean waterSensitive;
 
-        public LightSource() {
+        public LightSourceEntry() {
             // Required for deserialization
         }
 
-        public LightSource(String id, int luminance, boolean waterSensitive) {
+        public LightSourceEntry(String id, int luminance, boolean waterSensitive) {
             this.id = id;
             this.luminance = luminance;
             this.waterSensitive = waterSensitive;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof LightSourceEntry)) return false;
+            LightSourceEntry other = (LightSourceEntry) o;
+            return id.equals(other.id) && luminance == other.luminance && waterSensitive == other.waterSensitive;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
     }
 
     @Override
-    public void validatePostLoad() throws ValidationException {
-        // Correct invalid values where possible
-        if (lightThreshold < 0 || lightThreshold > 15) {
-            TheMurk.LOGGER.warn("Correcting invalid lightThreshold: {}. Must be between 0 and 15.", lightThreshold);
-            lightThreshold = Math.max(0, Math.min(15, lightThreshold));
+    public void validatePostLoad() {
+        TheMurk.LOGGER.info("Validating MurkConfig: dimensions={}, lightThreshold={}, lightSources={}",
+                general_dimensions, general_lightThreshold, lightSource_lightSources);
+
+        // General validation
+        if (general_lightThreshold < 0 || general_lightThreshold > 15) {
+            TheMurk.LOGGER.warn("Correcting general_lightThreshold: {} to {}. Must be between 0 and 15.", general_lightThreshold, Math.max(0, Math.min(15, general_lightThreshold)));
+            general_lightThreshold = Math.max(0, Math.min(15, general_lightThreshold));
         }
-        if (litAreaEffectDuration <= 0 || Double.isNaN(litAreaEffectDuration)) {
-            TheMurk.LOGGER.warn("Correcting invalid litAreaEffectDuration: {}. Must be positive.", litAreaEffectDuration);
-            litAreaEffectDuration = 4.0;
-        }
-        if (dimensions == null || dimensions.isEmpty()) {
-            TheMurk.LOGGER.warn("Correcting invalid dimensions: {}. Must be a non-empty list.", dimensions);
-            dimensions = Arrays.asList("minecraft:overworld");
-        }
-        if (baseDamage < 0 || baseDamage > 10) {
-            TheMurk.LOGGER.warn("Correcting invalid baseDamage: {}. Must be between 0 and 10.", baseDamage);
-            baseDamage = Math.max(0, Math.min(10, baseDamage));
-        }
-        if (maxDamage < baseDamage || maxDamage > 20) {
-            TheMurk.LOGGER.warn("Correcting invalid maxDamage: {}. Must be >= baseDamage and <= 20.", maxDamage);
-            maxDamage = Math.max(baseDamage, Math.min(20, maxDamage));
-        }
-        if (damageInterval < 1 || damageInterval > 10 || Double.isNaN(damageInterval)) {
-            TheMurk.LOGGER.warn("Correcting invalid damageInterval: {}. Must be between 1 and 10.", damageInterval);
-            damageInterval = 3.0;
-        }
-        if (lightSources == null || lightSources.isEmpty()) {
-            TheMurk.LOGGER.warn("Correcting invalid lightSources: {}. Must be a non-empty list.", lightSources);
-            lightSources = Arrays.asList(
-                    new LightSource("minecraft:torch", 14, true),
-                    new LightSource("minecraft:lantern", 15, false),
-                    new LightSource("minecraft:glowstone", 15, false),
-                    new LightSource("minecraft:dirt", 10, false)
-            );
+        if (general_dimensions == null) {
+            TheMurk.LOGGER.warn("general_dimensions is null. Setting to default: [\"minecraft:overworld\"]");
+            general_dimensions = new ArrayList<>(Arrays.asList("minecraft:overworld"));
         } else {
-            for (LightSource source : lightSources) {
-                if (source.id == null || source.id.isEmpty()) {
-                    TheMurk.LOGGER.warn("Invalid light source ID: {}. Skipping.", source.id);
-                    continue;
-                }
+            List<String> original = new ArrayList<>(general_dimensions);
+            general_dimensions = general_dimensions.stream()
+                    .filter(id -> id != null && !id.trim().isEmpty())
+                    .distinct()
+                    .collect(Collectors.toCollection(ArrayList::new));
+            if (general_dimensions.isEmpty()) {
+                TheMurk.LOGGER.warn("general_dimensions is empty after cleanup. Setting to default: [\"minecraft:overworld\"]");
+                general_dimensions = new ArrayList<>(Arrays.asList("minecraft:overworld"));
+            } else if (!general_dimensions.equals(original)) {
+                TheMurk.LOGGER.info("Deduplicated general_dimensions: {} to {}", original, general_dimensions);
+            }
+        }
+
+        // Effect validation
+        if (effect_litAreaEffectDuration <= 0 || Double.isNaN(effect_litAreaEffectDuration) || Double.isInfinite(effect_litAreaEffectDuration)) {
+            TheMurk.LOGGER.warn("Correcting effect_litAreaEffectDuration: {} to 4.0. Must be positive and finite.", effect_litAreaEffectDuration);
+            effect_litAreaEffectDuration = 4.0;
+        }
+        if (effect_baseDamage < 0 || Float.isNaN(effect_baseDamage)) {
+            TheMurk.LOGGER.warn("Correcting effect_baseDamage: {} to {}. Must be non-negative.", effect_baseDamage, Math.max(0, effect_baseDamage));
+            effect_baseDamage = Math.max(0, effect_baseDamage);
+        }
+        if (effect_maxDamage < effect_baseDamage || Float.isNaN(effect_maxDamage)) {
+            TheMurk.LOGGER.warn("Correcting effect_maxDamage: {} to {}. Must be >= baseDamage.", effect_maxDamage, Math.max(effect_baseDamage, effect_maxDamage));
+            effect_maxDamage = Math.max(effect_baseDamage, effect_maxDamage);
+        }
+        if (effect_damageInterval < 1 || Double.isNaN(effect_damageInterval) || Double.isInfinite(effect_damageInterval)) {
+            TheMurk.LOGGER.warn("Correcting effect_damageInterval: {} to 3.0. Must be >= 1.", effect_damageInterval);
+            effect_damageInterval = 3.0;
+        }
+
+        // LightSource validation
+        if (lightSource_droppedItemRadius < 1 || Double.isNaN(lightSource_droppedItemRadius) || Double.isInfinite(lightSource_droppedItemRadius)) {
+            TheMurk.LOGGER.warn("Correcting lightSource_droppedItemRadius: {} to 7.0. Must be >= 1.", lightSource_droppedItemRadius);
+            lightSource_droppedItemRadius = 5.0;
+        }
+        if (lightSource_nearbyPlayerRadius < 1 || Double.isNaN(lightSource_nearbyPlayerRadius) || Double.isInfinite(lightSource_nearbyPlayerRadius)) {
+            TheMurk.LOGGER.warn("Correcting lightSource_nearbyPlayerRadius: {} to 7.0. Must be >= 1.", lightSource_nearbyPlayerRadius);
+            lightSource_nearbyPlayerRadius = 5.0;
+        }
+        if (lightSource_lightSources == null) {
+            TheMurk.LOGGER.warn("lightSource_lightSources is null. Setting to default.");
+            lightSource_lightSources = new ArrayList<>(Arrays.asList(
+                    new LightSourceEntry("minecraft:torch", 14, true),
+                    new LightSourceEntry("minecraft:lantern", 15, false),
+                    new LightSourceEntry("minecraft:glowstone", 15, false)
+            ));
+        } else {
+            List<LightSourceEntry> original = new ArrayList<>(lightSource_lightSources);
+            lightSource_lightSources = lightSource_lightSources.stream()
+                    .filter(source -> source != null && source.id != null && !source.id.trim().isEmpty())
+                    .distinct()
+                    .collect(Collectors.toCollection(ArrayList::new));
+            for (LightSourceEntry source : lightSource_lightSources) {
                 if (source.luminance < 0 || source.luminance > 15) {
-                    TheMurk.LOGGER.warn("Correcting invalid luminance {} for item {}. Must be between 0 and 15.", source.luminance, source.id);
+                    TheMurk.LOGGER.warn("Correcting luminance for {}: {} to {}. Must be between 0 and 15.", source.id, source.luminance, Math.max(0, Math.min(15, source.luminance)));
                     source.luminance = Math.max(0, Math.min(15, source.luminance));
                 }
             }
+            if (lightSource_lightSources.isEmpty()) {
+                TheMurk.LOGGER.warn("lightSource_lightSources is empty after cleanup. Setting to default.");
+                lightSource_lightSources = new ArrayList<>(Arrays.asList(
+                        new LightSourceEntry("minecraft:torch", 14, true),
+                        new LightSourceEntry("minecraft:lantern", 15, false),
+                        new LightSourceEntry("minecraft:glowstone", 15, false)
+                ));
+            } else if (!lightSource_lightSources.equals(original)) {
+                TheMurk.LOGGER.info("Deduplicated lightSource_lightSources: {} to {}", original, lightSource_lightSources);
+            }
         }
+
+        TheMurk.LOGGER.info("Validation complete: dimensions={}, lightThreshold={}, lightSources={}",
+                general_dimensions, general_lightThreshold, lightSource_lightSources);
     }
 }

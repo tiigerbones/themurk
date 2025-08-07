@@ -8,13 +8,5 @@
     "sounds": [
       "murk:murk_vanish"
     ]
-  },
-  "murk_attack": {
-    "sounds": [
-      "murk:murk_attack1",
-      "murk:murk_attack2",
-      "murk:murk_attack3",
-      "murk:murk_attack4"
-    ]
   }
 }
