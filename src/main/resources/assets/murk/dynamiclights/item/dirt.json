@@ -1,0 +1,7 @@
+{
+  "match": {
+    "items": "minecraft:dirt"
+  },
+  "luminance": 14,
+  "water_sensitive": true
+}

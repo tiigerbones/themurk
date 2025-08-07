@@ -2,21 +2,15 @@ package com.enchantedwisp.murk.util;
 
 import com.enchantedwisp.murk.TheMurk;
 import com.enchantedwisp.murk.config.MurkConfig;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
-import net.minecraft.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +18,7 @@ import java.util.Optional;
 public class DynamicLightingHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheMurk.MOD_ID + "_dynamic_lighting");
     private static final Map<String, Integer> ITEM_LIGHT_LEVELS = new HashMap<>();
+    private static final Map<String, Boolean> ITEM_WATER_SENSITIVE = new HashMap<>();
     private static boolean isDynamicLightingModLoaded = false;
 
     public static void register() {
@@ -33,27 +28,27 @@ public class DynamicLightingHandler {
         isDynamicLightingModLoaded = isLambDynamicLightsLoaded() || isSodiumDynamicLightsLoaded();
         LOGGER.info("Dynamic lighting mod detected: {}", isDynamicLightingModLoaded ? "Yes" : "No");
 
-        // Load light_sources.json
-        try (InputStream input = DynamicLightingHandler.class.getClassLoader()
-                .getResourceAsStream("assets/murk/dynamiclights/item/light_sources.json")) {
-            if (input == null) {
-                LOGGER.error("Failed to find light_sources.json");
-                return;
-            }
-            JsonArray jsonArray = JsonHelper.deserialize(new Gson(), new InputStreamReader(input), JsonArray.class);
-            for (var element : jsonArray) {
-                JsonObject obj = element.getAsJsonObject();
-                String itemId = obj.getAsJsonObject("item").get("id").getAsString();
-                int luminance = obj.get("luminance").getAsInt();
-                if (luminance < 0 || luminance > 15) {
-                    LOGGER.warn("Invalid luminance {} for item {}. Must be between 0 and 15. Skipping.", luminance, itemId);
-                    continue;
-                }
-                ITEM_LIGHT_LEVELS.put(itemId, luminance);
-                LOGGER.info("Loaded light source: {} with luminance {}", itemId, luminance);
-            }
+        // Load light sources from config
+        MurkConfig config;
+        try {
+            config = AutoConfig.getConfigHolder(MurkConfig.class).getConfig();
         } catch (Exception e) {
-            LOGGER.error("Failed to load light_sources.json", e);
+            LOGGER.error("Failed to load MurkConfig, using default values", e);
+            config = new MurkConfig();
+        }
+
+        for (MurkConfig.LightSource source : config.lightSources) {
+            if (source.id == null || source.id.isEmpty()) {
+                LOGGER.warn("Skipping invalid light source: Missing or empty ID");
+                continue;
+            }
+            if (source.luminance < 0 || source.luminance > 15) {
+                LOGGER.warn("Invalid luminance {} for item {}. Must be between 0 and 15. Skipping.", source.luminance, source.id);
+                continue;
+            }
+            ITEM_LIGHT_LEVELS.put(source.id, source.luminance);
+            ITEM_WATER_SENSITIVE.put(source.id, source.waterSensitive);
+            LOGGER.info("Loaded light source: {} with luminance {}, water_sensitive: {}", source.id, source.luminance, source.waterSensitive);
         }
     }
 
@@ -68,10 +63,12 @@ public class DynamicLightingHandler {
 
         // Skip light checks if underwater and not enabled
         if (!config.enableUnderwaterLightCheck && player.isSubmergedInWater()) {
+            LOGGER.debug("Skipping light level check for player {}: Underwater with enableUnderwaterLightCheck=false", player.getName().getString());
             return 0;
         }
 
         if (!config.enableDynamicLighting || !isDynamicLightingModLoaded) {
+            LOGGER.debug("Skipping light level check for player {}: Dynamic lighting disabled or mod not loaded", player.getName().getString());
             return 0;
         }
 
@@ -82,8 +79,16 @@ public class DynamicLightingHandler {
             if (!stack.isEmpty()) {
                 String itemId = Registries.ITEM.getId(stack.getItem()).toString();
                 Integer lightLevel = ITEM_LIGHT_LEVELS.get(itemId);
-                if (lightLevel != null && lightLevel > maxLightLevel) {
-                    maxLightLevel = lightLevel;
+                if (lightLevel != null) {
+                    // Skip if water-sensitive and player is submerged
+                    if (ITEM_WATER_SENSITIVE.getOrDefault(itemId, false) && player.isSubmergedInWater()) {
+                        LOGGER.debug("Skipping light source {} for player {}: Water-sensitive and submerged", itemId, player.getName().getString());
+                        continue;
+                    }
+                    if (lightLevel > maxLightLevel) {
+                        maxLightLevel = lightLevel;
+                        LOGGER.debug("Found light source {} in hand with luminance {} for player {}", itemId, lightLevel, player.getName().getString());
+                    }
                 }
             }
         }
@@ -97,15 +102,23 @@ public class DynamicLightingHandler {
                     if (!stack.isEmpty()) {
                         String itemId = Registries.ITEM.getId(stack.getItem()).toString();
                         Integer lightLevel = ITEM_LIGHT_LEVELS.get(itemId);
-                        if (lightLevel != null && lightLevel > maxLightLevel) {
-                            maxLightLevel = lightLevel;
+                        if (lightLevel != null) {
+                            // Skip if water-sensitive and player is submerged
+                            if (ITEM_WATER_SENSITIVE.getOrDefault(itemId, false) && player.isSubmergedInWater()) {
+                                LOGGER.debug("Skipping light source {} in trinket for player {}: Water-sensitive and submerged", itemId, player.getName().getString());
+                                continue;
+                            }
+                            if (lightLevel > maxLightLevel) {
+                                maxLightLevel = lightLevel;
+                                LOGGER.debug("Found light source {} in trinket with luminance {} for player {}", itemId, lightLevel, player.getName().getString());
+                            }
                         }
                     }
                 }
             }
         }
 
-        LOGGER.debug("Player {} light level: {}", player.getName().getString(), maxLightLevel);
+        LOGGER.debug("Player {} total light level: {}", player.getName().getString(), maxLightLevel);
         return maxLightLevel;
     }
 

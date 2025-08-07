@@ -45,6 +45,39 @@ public class MurkConfig implements ConfigData {
     @Comment("Enable light level checks when the player is underwater. Default: false")
     public boolean enableUnderwaterLightCheck = false;
 
+    @Comment("Enable Murk's Grasp effect for players in Creative mode. Default: false")
+    public boolean enableCreativeEffect = false;
+
+    @Comment("List of items that emit light when held or in trinket slots. Format: {id: \"minecraft:torch\", luminance: 14, water_sensitive: true}")
+    public List<LightSource> lightSources = Arrays.asList(
+            new LightSource("minecraft:torch", 14, true),
+            new LightSource("minecraft:lantern", 15, false),
+            new LightSource("minecraft:glowstone", 15, false),
+            new LightSource("minecraft:dirt", 10, false)
+    );
+
+    public static class LightSource {
+        @Comment("Item ID (e.g., \"minecraft:torch\")")
+        public String id;
+
+        @Comment("Light level emitted (0-15)")
+        @ConfigEntry.BoundedDiscrete(min = 0, max = 15)
+        public int luminance;
+
+        @Comment("Whether the item stops emitting light underwater")
+        public boolean waterSensitive;
+
+        public LightSource() {
+            // Required for deserialization
+        }
+
+        public LightSource(String id, int luminance, boolean waterSensitive) {
+            this.id = id;
+            this.luminance = luminance;
+            this.waterSensitive = waterSensitive;
+        }
+    }
+
     @Override
     public void validatePostLoad() throws ValidationException {
         // Correct invalid values where possible
@@ -71,6 +104,26 @@ public class MurkConfig implements ConfigData {
         if (damageInterval < 1 || damageInterval > 10 || Double.isNaN(damageInterval)) {
             TheMurk.LOGGER.warn("Correcting invalid damageInterval: {}. Must be between 1 and 10.", damageInterval);
             damageInterval = 3.0;
+        }
+        if (lightSources == null || lightSources.isEmpty()) {
+            TheMurk.LOGGER.warn("Correcting invalid lightSources: {}. Must be a non-empty list.", lightSources);
+            lightSources = Arrays.asList(
+                    new LightSource("minecraft:torch", 14, true),
+                    new LightSource("minecraft:lantern", 15, false),
+                    new LightSource("minecraft:glowstone", 15, false),
+                    new LightSource("minecraft:dirt", 10, false)
+            );
+        } else {
+            for (LightSource source : lightSources) {
+                if (source.id == null || source.id.isEmpty()) {
+                    TheMurk.LOGGER.warn("Invalid light source ID: {}. Skipping.", source.id);
+                    continue;
+                }
+                if (source.luminance < 0 || source.luminance > 15) {
+                    TheMurk.LOGGER.warn("Correcting invalid luminance {} for item {}. Must be between 0 and 15.", source.luminance, source.id);
+                    source.luminance = Math.max(0, Math.min(15, source.luminance));
+                }
+            }
         }
     }
 }

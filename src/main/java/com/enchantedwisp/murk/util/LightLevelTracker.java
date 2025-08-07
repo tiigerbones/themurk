@@ -48,6 +48,19 @@ public class LightLevelTracker {
                 ServerWorld world = player.getServerWorld();
                 BlockPos pos = player.getBlockPos();
 
+                // Skip Creative mode players unless enabled
+                if (player.isCreative() && !config.enableCreativeEffect) {
+                    resetPlayer(playerId);
+                    if (player.hasStatusEffect(Effects.MURKS_GRASP)) {
+                        player.removeStatusEffect(Effects.MURKS_GRASP);
+                        if (config.blindnessEnabled) {
+                            player.removeStatusEffect(StatusEffects.BLINDNESS);
+                        }
+                        LOGGER.debug("Removed MurksGraspEffect for Creative player {}", player.getName().getString());
+                    }
+                    continue;
+                }
+
                 // Check if player is in an allowed dimension
                 Identifier dimensionId = world.getRegistryKey().getValue();
                 if (!config.dimensions.contains(dimensionId.toString())) {
