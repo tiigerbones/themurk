@@ -12,6 +12,7 @@ import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import java.util.Objects;
@@ -68,7 +69,7 @@ public class MurkGraspEffect extends StatusEffect {
     @Override
     public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
         super.onApplied(entity, attributes, amplifier);
-        if (entity instanceof PlayerEntity player && !entity.getWorld().isClient) {
+        if (entity instanceof ServerPlayerEntity player && !entity.getWorld().isClient) {
             MurkConfig config;
             try {
                 config = AutoConfig.getConfigHolder(MurkConfig.class).getConfig();
@@ -89,10 +90,11 @@ public class MurkGraspEffect extends StatusEffect {
                 }
                 // Send message only if warning text is enabled
                 if (config.general_enableWarningText) {
-                    player.sendMessage(
+                    player.sendMessageToClient(
                             Text.literal("You are gripped by Murk’s Grasp!").styled(style -> style.withColor(0xFF5555)),
-                            false
+                            true // Use action bar
                     );
+                    TheMurk.LOGGER.debug("Sent Murk's Grasp action bar message to player {}", player.getName().getString());
                 }
             }
         }

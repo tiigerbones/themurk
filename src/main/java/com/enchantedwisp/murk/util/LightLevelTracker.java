@@ -99,14 +99,14 @@ public class LightLevelTracker {
                         int ticks = playerLowLightTicks.getOrDefault(playerId, 0) + 1;
                         playerLowLightTicks.put(playerId, ticks);
 
-                        // Send warning message after 5 seconds if enabled
+                        // Send warning message to action bar after 5 seconds if enabled
                         if (enableWarningText && ticks >= TICKS_UNTIL_WARNING && !playerWarned.getOrDefault(playerId, false)) {
-                            player.sendMessage(
+                            player.sendMessageToClient(
                                     Text.literal("An evil presence lurks in the dark nearby...").styled(style -> style.withColor(0xFF5555)),
-                                    false
+                                    true // Use action bar
                             );
                             playerWarned.put(playerId, true);
-                            LOGGER.debug("Sent warning message to player {}", player.getName().getString());
+                            LOGGER.debug("Sent warning message to action bar for player {}", player.getName().getString());
                         }
 
                         // Apply effect with infinite duration after 15 seconds (5 + 10)
