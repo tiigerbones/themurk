@@ -76,9 +76,6 @@ public class TheMurkClient implements ClientModInitializer {
                                     player.getZ()
                             )
                     );
-                    /* LOG FOR DEV
-                    LOGGER.debug("Played murk_vanish sound for player {} as MurksGraspEffect expired", player.getName().getString());
-                     */
                 }
 
                 // Update effect tracking

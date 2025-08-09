@@ -2,8 +2,9 @@ package com.enchantedwisp.murk;
 
 import com.enchantedwisp.murk.config.MurkConfig;
 import com.enchantedwisp.murk.registry.Effects;
-import com.enchantedwisp.murk.util.DynamicLightingHandler;
-import com.enchantedwisp.murk.util.LightLevelTracker;
+import com.enchantedwisp.murk.util.ConfigCache;
+import com.enchantedwisp.murk.util.lighting.DynamicLightManager;
+import com.enchantedwisp.murk.util.tracker.LightLevelMonitor;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
@@ -25,22 +26,23 @@ public class TheMurk implements ModInitializer {
 		try {
 			configHolder = AutoConfig.register(MurkConfig.class, JanksonConfigSerializer::new);
 			config = configHolder.getConfig();
-			LOGGER.info("Loaded MurkConfig from config/murk.json5. Contents: dimensions={}, lightThreshold={}",
-					config.general_dimensions, config.general_lightThreshold);
 		} catch (Exception e) {
 			LOGGER.error("Failed to deserialize MurkConfig from config/murk.json5, falling back to defaults", e);
 			config = new MurkConfig();
 			configHolder = AutoConfig.getConfigHolder(MurkConfig.class);
 		}
 
+		// Initialize config cache
+		ConfigCache.initialize();
+
 		// Register effects
 		Effects.register();
 
-		// Register dynamic lighting handler
-		DynamicLightingHandler.register();
+		// Register dynamic lighting manager
+		DynamicLightManager.register();
 
-		// Register light level tracker
-		LightLevelTracker.register();
+		// Register light level monitor
+		LightLevelMonitor.register();
 	}
 
 	public static MurkConfig getConfig() {
