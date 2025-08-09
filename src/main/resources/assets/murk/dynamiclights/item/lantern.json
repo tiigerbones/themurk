@@ -1,0 +1,7 @@
+{
+  "match": {
+    "items": ["minecraft:lantern", "minecraft:soul_lantern"]
+  },
+  "luminance": 15,
+  "water_sensitive": false
+}

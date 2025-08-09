@@ -8,7 +8,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -213,26 +212,25 @@ public class LightLevelTracker {
             ItemStack stack = itemEntity.getStack();
             if (!stack.isEmpty()) {
                 String itemId = Registries.ITEM.getId(stack.getItem()).toString();
-                for (MurkConfig.LightSourceEntry source : config.lightSource_lightSources) {
-                    if (source.id.equals(itemId)) {
-                        // Skip if water-sensitive and item is underwater
-                        if (source.waterSensitive && itemEntity.isSubmergedInWater()) {
-                            LOGGER.debug("Skipping dropped item {} at {}: Water-sensitive and submerged",
-                                    itemId, itemEntity.getBlockPos());
-                            continue;
-                        }
-                        // Check line of sight with transparency
-                        Vec3d itemPos = itemEntity.getPos().add(0, 0.5, 0); // Center of item entity
-                        if (!hasLineOfSight(world, playerEyePos, itemPos)) {
-                            LOGGER.debug("Skipping dropped item {} at {}: No transparent line of sight to player {}",
-                                    itemId, itemEntity.getBlockPos(), player.getName().getString());
-                            continue;
-                        }
-                        if (source.luminance > maxLightLevel) {
-                            maxLightLevel = source.luminance;
-                            LOGGER.debug("Found dropped item {} at {} with luminance {} for player {}",
-                                    itemId, itemEntity.getBlockPos(), source.luminance, player.getName().getString());
-                        }
+                DynamicLightingHandler.LightSourceEntry entry = DynamicLightingHandler.getLightSources().get(itemId);
+                if (entry != null) {
+                    // Skip if water-sensitive and item is underwater
+                    if (entry.waterSensitive && itemEntity.isSubmergedInWater()) {
+                        LOGGER.debug("Skipping dropped item {} at {}: Water-sensitive and submerged",
+                                itemId, itemEntity.getBlockPos());
+                        continue;
+                    }
+                    // Check line of sight with transparency
+                    Vec3d itemPos = itemEntity.getPos().add(0, 0.5, 0); // Center of item entity
+                    if (!hasLineOfSight(world, playerEyePos, itemPos)) {
+                        LOGGER.debug("Skipping dropped item {} at {}: No transparent line of sight to player {}",
+                                itemId, itemEntity.getBlockPos(), player.getName().getString());
+                        continue;
+                    }
+                    if (entry.luminance > maxLightLevel) {
+                        maxLightLevel = entry.luminance;
+                        LOGGER.debug("Found dropped item {} at {} with luminance {} for player {}",
+                                itemId, itemEntity.getBlockPos(), entry.luminance, player.getName().getString());
                     }
                 }
             }

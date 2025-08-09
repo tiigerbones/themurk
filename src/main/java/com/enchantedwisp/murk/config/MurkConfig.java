@@ -63,58 +63,17 @@ public class MurkConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.BoundedDiscrete(min = 1, max = 16)
-    public double lightSource_droppedItemRadius = 5.0;
+    public double lightSource_droppedItemRadius = 7.0;
 
     @Comment("Radius (in blocks) to check for nearby players holding luminescent items. Default: 7.0")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(min = 1, max = 16)
-    public double lightSource_nearbyPlayerRadius = 5.0;
-
-    @Comment("List of items that emit light when held, in trinket slots, dropped, or held by nearby players. Format: {id: \"minecraft:torch\", luminance: 14, water_sensitive: true} Make sure to create the correct json file in assets/murk/dynamiclights/item so the item actually emits light visually")
-    @ConfigEntry.Gui.Tooltip(count = 2)
-    public List<LightSourceEntry> lightSource_lightSources = new ArrayList<>(Arrays.asList(
-            new LightSourceEntry("minecraft:torch", 14, true),
-            new LightSourceEntry("minecraft:lantern", 15, false),
-            new LightSourceEntry("minecraft:glowstone", 15, false)
-    ));
-
-    public static class LightSourceEntry {
-        @ConfigEntry.Gui.Tooltip
-        public String id;
-        @ConfigEntry.Gui.Tooltip
-        @ConfigEntry.BoundedDiscrete(min = 0, max = 15)
-        public int luminance;
-        @ConfigEntry.Gui.Tooltip
-        public boolean waterSensitive;
-
-        public LightSourceEntry() {
-            // Required for deserialization
-        }
-
-        public LightSourceEntry(String id, int luminance, boolean waterSensitive) {
-            this.id = id;
-            this.luminance = luminance;
-            this.waterSensitive = waterSensitive;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof LightSourceEntry)) return false;
-            LightSourceEntry other = (LightSourceEntry) o;
-            return id.equals(other.id) && luminance == other.luminance && waterSensitive == other.waterSensitive;
-        }
-
-        @Override
-        public int hashCode() {
-            return id.hashCode();
-        }
-    }
+    public double lightSource_nearbyPlayerRadius = 7.0;
 
     @Override
     public void validatePostLoad() {
-        TheMurk.LOGGER.info("Validating MurkConfig: dimensions={}, lightThreshold={}, lightSources={}",
-                general_dimensions, general_lightThreshold, lightSource_lightSources);
+        TheMurk.LOGGER.info("Validating MurkConfig: dimensions={}, lightThreshold={}",
+                general_dimensions, general_lightThreshold);
 
         // General validation
         if (general_lightThreshold < 0 || general_lightThreshold > 15) {
@@ -159,44 +118,14 @@ public class MurkConfig implements ConfigData {
         // LightSource validation
         if (lightSource_droppedItemRadius < 1 || Double.isNaN(lightSource_droppedItemRadius) || Double.isInfinite(lightSource_droppedItemRadius)) {
             TheMurk.LOGGER.warn("Correcting lightSource_droppedItemRadius: {} to 7.0. Must be >= 1.", lightSource_droppedItemRadius);
-            lightSource_droppedItemRadius = 5.0;
+            lightSource_droppedItemRadius = 7.0;
         }
         if (lightSource_nearbyPlayerRadius < 1 || Double.isNaN(lightSource_nearbyPlayerRadius) || Double.isInfinite(lightSource_nearbyPlayerRadius)) {
             TheMurk.LOGGER.warn("Correcting lightSource_nearbyPlayerRadius: {} to 7.0. Must be >= 1.", lightSource_nearbyPlayerRadius);
-            lightSource_nearbyPlayerRadius = 5.0;
-        }
-        if (lightSource_lightSources == null) {
-            TheMurk.LOGGER.warn("lightSource_lightSources is null. Setting to default.");
-            lightSource_lightSources = new ArrayList<>(Arrays.asList(
-                    new LightSourceEntry("minecraft:torch", 14, true),
-                    new LightSourceEntry("minecraft:lantern", 15, false),
-                    new LightSourceEntry("minecraft:glowstone", 15, false)
-            ));
-        } else {
-            List<LightSourceEntry> original = new ArrayList<>(lightSource_lightSources);
-            lightSource_lightSources = lightSource_lightSources.stream()
-                    .filter(source -> source != null && source.id != null && !source.id.trim().isEmpty())
-                    .distinct()
-                    .collect(Collectors.toCollection(ArrayList::new));
-            for (LightSourceEntry source : lightSource_lightSources) {
-                if (source.luminance < 0 || source.luminance > 15) {
-                    TheMurk.LOGGER.warn("Correcting luminance for {}: {} to {}. Must be between 0 and 15.", source.id, source.luminance, Math.max(0, Math.min(15, source.luminance)));
-                    source.luminance = Math.max(0, Math.min(15, source.luminance));
-                }
-            }
-            if (lightSource_lightSources.isEmpty()) {
-                TheMurk.LOGGER.warn("lightSource_lightSources is empty after cleanup. Setting to default.");
-                lightSource_lightSources = new ArrayList<>(Arrays.asList(
-                        new LightSourceEntry("minecraft:torch", 14, true),
-                        new LightSourceEntry("minecraft:lantern", 15, false),
-                        new LightSourceEntry("minecraft:glowstone", 15, false)
-                ));
-            } else if (!lightSource_lightSources.equals(original)) {
-                TheMurk.LOGGER.info("Deduplicated lightSource_lightSources: {} to {}", original, lightSource_lightSources);
-            }
+            lightSource_nearbyPlayerRadius = 7.0;
         }
 
-        TheMurk.LOGGER.info("Validation complete: dimensions={}, lightThreshold={}, lightSources={}",
-                general_dimensions, general_lightThreshold, lightSource_lightSources);
+        TheMurk.LOGGER.info("Validation complete: dimensions={}, lightThreshold={}",
+                general_dimensions, general_lightThreshold);
     }
 }

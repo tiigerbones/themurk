@@ -33,9 +33,10 @@ dependencies {
 
     /*
     // For testing
+
+     */
 	modLocalRuntime("dev.emi:trinkets:${project.trinkets_version}")
 	modLocalRuntime("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${project.lambdynlights_version}")
-     */
 
 	modApi "com.terraformersmc:modmenu:7.2.2"
 
