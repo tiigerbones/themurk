@@ -42,8 +42,8 @@ public class LightLevelTracker {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             MurkConfig config = TheMurk.getConfig();
             int lightThreshold = config.general_lightThreshold;
-            int litAreaDurationTicks = (int) (config.effect_litAreaEffectDuration * 20); // Convert seconds to ticks
-            boolean enableCreativeEffect = config.general_enableCreativeEffect;
+            int litAreaDurationTicks = (int) (config.effect_murksGraspPersistenceTime * 20); // Convert seconds to ticks
+            boolean enableCreativeEffect = config.general_affectCreativePlayers;
             boolean enableUnderwaterLightCheck = config.general_enableUnderwaterLightCheck;
             boolean enableWarningText = config.general_enableWarningText;
             boolean blindnessEnabled = config.effect_blindnessEnabled;

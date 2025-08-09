@@ -27,6 +27,7 @@ public class MurkConfigScreen {
                         Text.literal("Light Threshold"),
                         config.general_lightThreshold,
                         0, 15)
+                .setTooltip(Text.of("Light level below which Murk's Grasp effect triggers.\nMust be between 0 and 15."))
                 .setDefaultValue(3)
                 .setSaveConsumer(value -> config.general_lightThreshold = value)
                 .build());
@@ -34,6 +35,7 @@ public class MurkConfigScreen {
         general.addEntry(entryBuilder.startBooleanToggle(
                         Text.literal("Enable Warning Text"),
                         config.general_enableWarningText)
+                .setTooltip(Text.of("Show warning messages in the action bar when nearing darkness or when Murk's Grasp is applied."))
                 .setDefaultValue(true)
                 .setSaveConsumer(value -> config.general_enableWarningText = value)
                 .build());
@@ -41,6 +43,7 @@ public class MurkConfigScreen {
         general.addEntry(entryBuilder.startStrList(
                         Text.literal("Dimensions"),
                         config.general_dimensions)
+                .setTooltip(Text.of("Dimensions where Murk's Grasp applies.\nUse IDs like \"minecraft:overworld\" or \"minecraft:the_nether\""))
                 .setDefaultValue(new ArrayList<>(Arrays.asList("minecraft:overworld")))
                 .setSaveConsumer(value -> config.general_dimensions = new ArrayList<>(new LinkedHashSet<>(value))) // Deduplicate
                 .build());
@@ -48,30 +51,34 @@ public class MurkConfigScreen {
         general.addEntry(entryBuilder.startBooleanToggle(
                         Text.literal("Enable Underwater Light Check"),
                         config.general_enableUnderwaterLightCheck)
+                .setTooltip(Text.of("Check light levels when the player is underwater."))
                 .setDefaultValue(false)
                 .setSaveConsumer(value -> config.general_enableUnderwaterLightCheck = value)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(
                         Text.literal("Enable Creative Effect"),
-                        config.general_enableCreativeEffect)
+                        config.general_affectCreativePlayers)
+                .setTooltip(Text.of("Apply Murk's Grasp to players in Creative mode."))
                 .setDefaultValue(false)
-                .setSaveConsumer(value -> config.general_enableCreativeEffect = value)
+                .setSaveConsumer(value -> config.general_affectCreativePlayers = value)
                 .build());
 
         // Effect Category
         ConfigCategory effect = builder.getOrCreateCategory(Text.literal("Effect"));
         effect.addEntry(entryBuilder.startDoubleField(
                         Text.literal("Lit Area Effect Duration (seconds)"),
-                        config.effect_litAreaEffectDuration)
+                        config.effect_murksGraspPersistenceTime)
+                .setTooltip(Text.of("How long (in seconds) Murk's Grasp persists after entering a lit area."))
                 .setDefaultValue(4.0)
                 .setMin(0.0)
-                .setSaveConsumer(value -> config.effect_litAreaEffectDuration = value)
+                .setSaveConsumer(value -> config.effect_murksGraspPersistenceTime = value)
                 .build());
 
         effect.addEntry(entryBuilder.startBooleanToggle(
                         Text.literal("Blindness Enabled"),
                         config.effect_blindnessEnabled)
+                .setTooltip(Text.of("Apply Blindness effect alongside Murk's Grasp."))
                 .setDefaultValue(true)
                 .setSaveConsumer(value -> config.effect_blindnessEnabled = value)
                 .build());
@@ -79,6 +86,7 @@ public class MurkConfigScreen {
         effect.addEntry(entryBuilder.startFloatField(
                         Text.literal("Base Damage"),
                         config.effect_baseDamage)
+                .setTooltip(Text.of("Initial damage per interval from Murk's Grasp (in half-hearts)."))
                 .setDefaultValue(0.5f)
                 .setMin(0.0f)
                 .setSaveConsumer(value -> config.effect_baseDamage = value)
@@ -87,6 +95,7 @@ public class MurkConfigScreen {
         effect.addEntry(entryBuilder.startFloatField(
                         Text.literal("Max Damage"),
                         config.effect_maxDamage)
+                .setTooltip(Text.of("Maximum damage per interval after 60 seconds (in half-hearts)."))
                 .setDefaultValue(2.0f)
                 .setMin(0.0f)
                 .setSaveConsumer(value -> config.effect_maxDamage = value)
@@ -95,7 +104,8 @@ public class MurkConfigScreen {
         effect.addEntry(entryBuilder.startDoubleField(
                         Text.literal("Damage Interval (seconds)"),
                         config.effect_damageInterval)
-                .setDefaultValue(3.0)
+                .setTooltip(Text.of("Time between damage ticks from Murk's Grasp (in seconds)."))
+                .setDefaultValue(5.5)
                 .setMin(1.0)
                 .setSaveConsumer(value -> config.effect_damageInterval = value)
                 .build());
@@ -105,7 +115,8 @@ public class MurkConfigScreen {
         lightSource.addEntry(entryBuilder.startDoubleField(
                         Text.literal("Dropped Item Radius (blocks)"),
                         config.lightSource_droppedItemRadius)
-                .setDefaultValue(7.0)
+                .setTooltip(Text.of("Radius (in blocks) to detect dropped light-emitting items."))
+                .setDefaultValue(5.0)
                 .setMin(1.0)
                 .setMax(16.0)
                 .setSaveConsumer(value -> config.lightSource_droppedItemRadius = value)
@@ -114,7 +125,8 @@ public class MurkConfigScreen {
         lightSource.addEntry(entryBuilder.startDoubleField(
                         Text.literal("Nearby Player Radius (blocks)"),
                         config.lightSource_nearbyPlayerRadius)
-                .setDefaultValue(7.0)
+                .setTooltip(Text.of("Radius (in blocks) to detect light from nearby players' items."))
+                .setDefaultValue(5.0)
                 .setMin(1.0)
                 .setMax(16.0)
                 .setSaveConsumer(value -> config.lightSource_nearbyPlayerRadius = value)

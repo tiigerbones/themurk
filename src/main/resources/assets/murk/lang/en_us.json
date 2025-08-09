@@ -1,22 +1,3 @@
 {
-  "death.attack.murks_grasp": "%1$s was consumed",
-
-
-  "murk.config.general_lightThreshold.prefix": "General Settings",
-  "murk.config.general_lightThreshold.tooltip": "Light level below which Murk's Grasp effect triggers.\nMust be between 0 and 15.",
-  "murk.config.general_enableWarningText.tooltip": "Show warning messages in chat when nearing or entering darkness.",
-  "murk.config.general_dimensions.tooltip": "Dimensions where Murk's Grasp applies.\nUse IDs like \"minecraft:overworld\" or \"minecraft:the_nether\".",
-  "murk.config.general_enableUnderwaterLightCheck.tooltip": "Check light levels when the player is underwater.",
-  "murk.config.general_enableCreativeEffect.tooltip": "Apply Murk's Grasp to players in Creative mode.",
-
-  "murk.config.effect_litAreaEffectDuration.prefix": "Effect Settings",
-  "murk.config.effect_litAreaEffectDuration.tooltip": "How long (in seconds) Murk's Grasp persists after entering a lit area.",
-  "murk.config.effect_blindnessEnabled.tooltip": "Apply Blindness effect alongside Murk's Grasp.",
-  "murk.config.effect_baseDamage.tooltip": "Initial damage per interval from Murk's Grasp (in half-hearts).",
-  "murk.config.effect_maxDamage.tooltip": "Maximum damage per interval after 60 seconds (in half-hearts).",
-  "murk.config.effect_damageInterval.tooltip": "Time between damage ticks from Murk's Grasp (in seconds).",
-
-  "murk.config.lightSource_droppedItemRadius.prefix": "Light Source Settings",
-  "murk.config.lightSource_droppedItemRadius.tooltip": "Radius (in blocks) to detect dropped light-emitting items.",
-  "murk.config.lightSource_nearbyPlayerRadius.tooltip": "Radius (in blocks) to detect light from nearby players' items."
+  "death.attack.murks_grasp": "%1$s was consumed"
 }
