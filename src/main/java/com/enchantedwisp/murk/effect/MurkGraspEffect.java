@@ -55,8 +55,6 @@ public class MurkGraspEffect extends StatusEffect {
                 float progress = duration == -1 ? 1.0f : Math.min(1.0f, (float)(MAX_SCALING_TICKS - duration) / MAX_SCALING_TICKS);
                 float damage = config.effect_baseDamage + (config.effect_maxDamage - config.effect_baseDamage) * progress;
                 player.damage(DamageTypes.of(player.getWorld()), damage);
-                TheMurk.LOGGER.debug("Applied {} damage to player {} with Murk's Grasp (progress: {})",
-                        damage, player.getName().getString(), progress);
             }
         }
     }
@@ -94,7 +92,6 @@ public class MurkGraspEffect extends StatusEffect {
                             Text.literal("You are gripped by Murk’s Grasp!").styled(style -> style.withColor(0xFF5555)),
                             true // Use action bar
                     );
-                    TheMurk.LOGGER.debug("Sent Murk's Grasp action bar message to player {}", player.getName().getString());
                 }
             }
         }

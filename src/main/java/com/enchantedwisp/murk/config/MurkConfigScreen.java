@@ -40,6 +40,26 @@ public class MurkConfigScreen {
                 .setSaveConsumer(value -> config.general_enableWarningText = value)
                 .build());
 
+        general.addEntry(entryBuilder.startDoubleField(
+                        Text.literal("Warning Message Delay (seconds)"),
+                        config.general_warningMessageDelay)
+                .setTooltip(Text.of("Time in seconds before the warning message appears in low light. Default: 5.0"))
+                .setDefaultValue(5.0)
+                .setMin(1.0)
+                .setMax(60.0)
+                .setSaveConsumer(value -> config.general_warningMessageDelay = value)
+                .build());
+
+        general.addEntry(entryBuilder.startDoubleField(
+                        Text.literal("Effect Delay After Warning (seconds)"),
+                        config.general_effectDelayAfterWarning)
+                .setTooltip(Text.of("Time in seconds after the warning message until Murk's Grasp is applied. Default: 10.0"))
+                .setDefaultValue(10.0)
+                .setMin(1.0)
+                .setMax(60.0)
+                .setSaveConsumer(value -> config.general_effectDelayAfterWarning = value)
+                .build());
+
         general.addEntry(entryBuilder.startStrList(
                         Text.literal("Dimensions"),
                         config.general_dimensions)
@@ -67,16 +87,16 @@ public class MurkConfigScreen {
         // Effect Category
         ConfigCategory effect = builder.getOrCreateCategory(Text.literal("Effect"));
         effect.addEntry(entryBuilder.startDoubleField(
-                        Text.literal("Lit Area Effect Duration (seconds)"),
+                        Text.literal("Effect Persistence Time (seconds)"),
                         config.effect_murksGraspPersistenceTime)
-                .setTooltip(Text.of("How long (in seconds) Murk's Grasp persists after entering a lit area."))
+                .setTooltip(Text.of("Duration (in seconds) that effects persist after entering a lit area."))
                 .setDefaultValue(4.0)
                 .setMin(0.0)
                 .setSaveConsumer(value -> config.effect_murksGraspPersistenceTime = value)
                 .build());
 
         effect.addEntry(entryBuilder.startBooleanToggle(
-                        Text.literal("Blindness Enabled"),
+                        Text.literal("Enable Blindness"),
                         config.effect_blindnessEnabled)
                 .setTooltip(Text.of("Apply Blindness effect alongside Murk's Grasp."))
                 .setDefaultValue(true)

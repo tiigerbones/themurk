@@ -9,12 +9,8 @@ import team.lodestar.lodestone.systems.postprocess.PostProcessor;
 public class ChromaticAberrationPostProcessor extends PostProcessor {
     public static final ChromaticAberrationPostProcessor INSTANCE = new ChromaticAberrationPostProcessor();
     private static final Logger LOGGER = LoggerFactory.getLogger("murk_chromatic_aberration");
-    // NOT ACTUALLY CHROMATIC ABERRATION EFFECT YET
     static {
         INSTANCE.setActive(false);
-        /* LOG FOR DEV
-        LOGGER.info("ChromaticAberrationPostProcessor instantiated, set to inactive");
-         */
     }
 
     @Override
@@ -40,11 +36,9 @@ public class ChromaticAberrationPostProcessor extends PostProcessor {
 
     @Override
     public void beforeProcess(MatrixStack matrixStack) {
-        LOGGER.debug("ChromaticAberrationPostProcessor beforeProcess called");
     }
 
     @Override
     public void afterProcess() {
-        LOGGER.debug("ChromaticAberrationPostProcessor afterProcess called");
     }
 }

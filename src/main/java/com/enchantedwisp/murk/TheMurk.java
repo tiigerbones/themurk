@@ -41,10 +41,6 @@ public class TheMurk implements ModInitializer {
 
 		// Register light level tracker
 		LightLevelTracker.register();
-
-		// Log config after initialization
-		LOGGER.info("Post-initialization config: dimensions={}, lightThreshold={}",
-				config.general_dimensions, config.general_lightThreshold);
 	}
 
 	public static MurkConfig getConfig() {
@@ -54,8 +50,6 @@ public class TheMurk implements ModInitializer {
 	public static void saveConfig() {
 		try {
 			configHolder.save();
-			LOGGER.info("Manually saved MurkConfig to config/murk.json5. Contents: dimensions={}, lightThreshold={}",
-					config.general_dimensions, config.general_lightThreshold);
 		} catch (Exception e) {
 			LOGGER.error("Failed to save MurkConfig to config/murk.json5", e);
 		}
