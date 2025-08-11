@@ -31,12 +31,12 @@ dependencies {
 	// The API of LambDynamicLights.
 	modCompileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${project.lambdynlights_version}")
 
-    /*
-    // For testing
 
-     */
+    // For testing
 	modLocalRuntime("dev.emi:trinkets:${project.trinkets_version}")
 	modLocalRuntime("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${project.lambdynlights_version}")
+
+
 
 	modApi "com.terraformersmc:modmenu:7.2.2"
 
@@ -46,9 +46,6 @@ dependencies {
 
 	// For runtime of Lodestone
 	modImplementation("team.lodestar.lodestone:lodestone:${project.minecraft_version}-${project.lodestone_version}-fabric")
-	modImplementation("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}")
-	modImplementation("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cca_version}")
-	modImplementation("dev.onyxstudios.cardinal-components-api:cardinal-components-world:${project.cca_version}")
 	modImplementation("dev.emi:trinkets:${project.trinkets_version}")
 
 	for (String module in port_lib_modules.split(",")) {

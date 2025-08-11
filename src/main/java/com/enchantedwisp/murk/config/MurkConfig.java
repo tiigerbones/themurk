@@ -8,6 +8,7 @@ import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,16 +76,15 @@ public class MurkConfig implements ConfigData {
                 .distinct()
                 .collect(Collectors.toCollection(ArrayList::new));
         if (general_dimensions.isEmpty()) {
-            TheMurk.LOGGER.warn("General dimensions list is empty, resetting to default: [minecraft:overworld]");
+            TheMurk.LOGGER.warn("Correcting general_dimensions: {} to [\"minecraft:overworld\"]. Must not be empty.", general_dimensions);
             general_dimensions = new ArrayList<>(Arrays.asList("minecraft:overworld"));
-        }
-        if (general_warningMessageDelay < 1 || Double.isNaN(general_warningMessageDelay) || Double.isInfinite(general_warningMessageDelay)) {
-            TheMurk.LOGGER.warn("Correcting general_warningMessageDelay: {} to 5.0. Must be >= 1 and finite.", general_warningMessageDelay);
-            general_warningMessageDelay = 5.0;
-        }
-        if (general_effectDelayAfterWarning < 1 || Double.isNaN(general_effectDelayAfterWarning) || Double.isInfinite(general_effectDelayAfterWarning)) {
-            TheMurk.LOGGER.warn("Correcting general_effectDelayAfterWarning: {} to 10.0. Must be >= 1 and finite.", general_effectDelayAfterWarning);
-            general_effectDelayAfterWarning = 10.0;
+        } else {
+            // Remove duplicates while preserving order
+            LinkedHashSet<String> uniqueDims = new LinkedHashSet<>(general_dimensions);
+            if (uniqueDims.size() < general_dimensions.size()) {
+                TheMurk.LOGGER.info("Removed duplicates from general_dimensions. Original: {}, Unique: {}", general_dimensions, uniqueDims);
+            }
+            general_dimensions = new ArrayList<>(uniqueDims);
         }
 
         // Effect validation
@@ -114,7 +114,5 @@ public class MurkConfig implements ConfigData {
             TheMurk.LOGGER.warn("Correcting lightSource_nearbyPlayerRadius: {} to 5.0. Must be >= 1.", lightSource_nearbyPlayerRadius);
             lightSource_nearbyPlayerRadius = 5.0;
         }
-
-        TheMurk.LOGGER.info("Validation complete: dimensions={}, lightThreshold={}", general_dimensions, general_lightThreshold);
     }
 }

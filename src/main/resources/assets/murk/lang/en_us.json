@@ -1,3 +1,4 @@
 {
-  "death.attack.murks_grasp_damage": "%1$s was consumed"
+  "death.attack.murks_grasp_damage": "%1$s was consumed",
+  "effect.murk.murks_grasp": "Murks Grasp"
 }
