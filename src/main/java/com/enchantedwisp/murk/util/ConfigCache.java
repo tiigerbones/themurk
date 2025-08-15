@@ -23,6 +23,7 @@ public class ConfigCache {
     private static boolean enableWarningText;
     private static boolean blindnessEnabled;
     private static boolean useBiomeWhitelist;
+    private static boolean enableEyesParticle;
     private static List<String> allowedDimensions;
     private static List<String> biomeBlacklist;
     private static List<String> biomeWhitelist;
@@ -55,6 +56,7 @@ public class ConfigCache {
         enableWarningText = config.general_enableWarningText;
         blindnessEnabled = config.effect_blindnessEnabled;
         useBiomeWhitelist = config.general_useBiomeWhitelist;
+        enableEyesParticle = config.general_enableEyesParticle;
         allowedDimensions = config.general_dimensions;
         biomeBlacklist = config.general_biomeBlacklist;
         biomeWhitelist = config.general_biomeWhitelist;
@@ -96,6 +98,10 @@ public class ConfigCache {
 
     public static boolean useBiomeWhitelist() {
         return useBiomeWhitelist;
+    }
+
+    public static boolean isEyesParticleEnabled() {
+        return enableEyesParticle;
     }
 
     public static List<String> getAllowedDimensions() {

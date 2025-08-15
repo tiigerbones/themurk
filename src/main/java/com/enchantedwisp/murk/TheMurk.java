@@ -1,7 +1,9 @@
 package com.enchantedwisp.murk;
 
 import com.enchantedwisp.murk.config.MurkConfig;
+import com.enchantedwisp.murk.network.MurkNetworking;
 import com.enchantedwisp.murk.registry.Effects;
+import com.enchantedwisp.murk.registry.Particles;
 import com.enchantedwisp.murk.registry.Sounds;
 import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.util.lighting.DynamicLightManager;
@@ -47,6 +49,12 @@ public class TheMurk implements ModInitializer {
 
 		// Register light level monitor
 		LightLevelMonitor.register();
+
+        // Server-side networking registration
+        MurkNetworking.registerServerReceivers();
+
+        // Register Particles
+        Particles.register();
 	}
 
 	public static MurkConfig getConfig() {

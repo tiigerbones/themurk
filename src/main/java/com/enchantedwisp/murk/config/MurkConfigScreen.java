@@ -40,6 +40,14 @@ public class MurkConfigScreen {
                 .setSaveConsumer(value -> config.general_enableWarningText = value)
                 .build());
 
+        general.addEntry(entryBuilder.startBooleanToggle(
+                        Text.literal("Enable Eyes Particle"),
+                        config.general_enableEyesParticle)
+                .setTooltip(Text.of("Show blinking eyes particle effect during the warning period before Murk's Grasp is applied."))
+                .setDefaultValue(true)
+                .setSaveConsumer(value -> config.general_enableEyesParticle = value)
+                .build());
+
         general.addEntry(entryBuilder.startDoubleField(
                         Text.literal("Warning Delay (seconds)"),
                         config.general_warningMessageDelay)

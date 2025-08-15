@@ -1,6 +1,7 @@
 package com.enchantedwisp.murk.util.tracker;
 
 import com.enchantedwisp.murk.TheMurk;
+import com.enchantedwisp.murk.network.MurkNetworking;
 import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.util.ConfigCache;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -48,6 +49,10 @@ public class LightLevelMonitor {
                         .get(RegistryKeys.BIOME)
                         .getId(world.getBiome(player.getBlockPos()).value());
                 if (biomeId != null && biomeBlacklist.contains(biomeId.toString())) {
+                    if (PlayerLightTracker.isWarned(playerId)) {
+                        MurkNetworking.sendStopWarningPacket(player);
+                        PlayerLightTracker.setWarned(playerId, false);
+                    }
                     PlayerLightTracker.reset(playerId);
                     if (player.hasStatusEffect(Effects.MURKS_GRASP)) {
                         player.removeStatusEffect(Effects.MURKS_GRASP);
@@ -60,6 +65,10 @@ public class LightLevelMonitor {
 
                 // Skip Creative mode players unless enabled
                 if (player.isCreative() && !enableCreativeEffect) {
+                    if (PlayerLightTracker.isWarned(playerId)) {
+                        MurkNetworking.sendStopWarningPacket(player);
+                        PlayerLightTracker.setWarned(playerId, false);
+                    }
                     PlayerLightTracker.reset(playerId);
                     if (player.hasStatusEffect(Effects.MURKS_GRASP)) {
                         player.removeStatusEffect(Effects.MURKS_GRASP);
@@ -73,12 +82,20 @@ public class LightLevelMonitor {
                 // Check if player is in an allowed dimension
                 Identifier dimensionId = world.getRegistryKey().getValue();
                 if (!allowedDimensions.contains(dimensionId.toString())) {
+                    if (PlayerLightTracker.isWarned(playerId)) {
+                        MurkNetworking.sendStopWarningPacket(player);
+                        PlayerLightTracker.setWarned(playerId, false);
+                    }
                     PlayerLightTracker.reset(playerId);
                     continue;
                 }
 
                 // Skip light checks if underwater and not enabled
                 if (!enableUnderwaterLightCheck && player.isSubmergedInWater()) {
+                    if (PlayerLightTracker.isWarned(playerId)) {
+                        MurkNetworking.sendStopWarningPacket(player);
+                        PlayerLightTracker.setWarned(playerId, false);
+                    }
                     PlayerLightTracker.reset(playerId);
                     if (player.hasStatusEffect(Effects.MURKS_GRASP)) {
                         player.removeStatusEffect(Effects.MURKS_GRASP);
@@ -100,7 +117,7 @@ public class LightLevelMonitor {
 
                         // Send warning message after configured delay if enabled
                         if (enableWarningText && ticks >= ticksUntilWarning && !PlayerLightTracker.isWarned(playerId)) {
-
+                            MurkNetworking.sendStartWarningPacket(player);
                             String fullMessage = "An evil presence lurks in the dark nearby...";
                             int totalFrames = 28; // how many updates total (~totalFrames * frameInterval ticks)
                             int frameInterval = 2; // ticks between updates
@@ -145,7 +162,6 @@ public class LightLevelMonitor {
                             PlayerLightTracker.setWarned(playerId, true);
                         }
 
-
                         // Apply effect with infinite duration after configured total delay
                         if (ticks >= ticksUntilWarning + ticksAfterWarning) {
                             player.addStatusEffect(new StatusEffectInstance(
@@ -155,6 +171,7 @@ public class LightLevelMonitor {
                                     false, // Not ambient
                                     true // Show particles
                             ));
+
                             if (blindnessEnabled) {
                                 player.addStatusEffect(new StatusEffectInstance(
                                         StatusEffects.BLINDNESS,
@@ -165,6 +182,7 @@ public class LightLevelMonitor {
                                 ));
                             }
                             PlayerLightTracker.reset(playerId); // Reset timer after applying effect
+                            MurkNetworking.sendStopWarningPacket(player); // Stop warning when effect is applied
                         }
                     }
                 } else {
@@ -194,6 +212,10 @@ public class LightLevelMonitor {
                         PlayerLightTracker.resetEffectTicks(playerId);
                     }
                     // Reset timer and warning state
+                    if (PlayerLightTracker.isWarned(playerId)) {
+                        MurkNetworking.sendStopWarningPacket(player);
+                        PlayerLightTracker.setWarned(playerId, false);
+                    }
                     PlayerLightTracker.reset(playerId);
                 }
 

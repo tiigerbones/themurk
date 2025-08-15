@@ -48,6 +48,9 @@ public class MurkConfig implements ConfigData {
     @Comment("Enable Murk's Grasp effect for players in Creative mode. Default: false")
     public boolean general_affectCreativePlayers = false;
 
+    @Comment("Whether to show the blinking eyes particle effect during the warning period. Default: true")
+    public boolean general_enableEyesParticle = true;
+
     @Comment("Duration (in seconds) that effects persist after entering a lit area. Default: 3.0")
     @ConfigEntry.Gui.PrefixText
     public double effect_murksGraspPersistenceTime = 3.0;
