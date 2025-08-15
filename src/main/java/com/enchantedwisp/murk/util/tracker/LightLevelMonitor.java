@@ -10,6 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.registry.RegistryKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +37,26 @@ public class LightLevelMonitor {
             boolean enableWarningText = ConfigCache.isWarningTextEnabled();
             boolean blindnessEnabled = ConfigCache.isBlindnessEnabled();
             List<String> allowedDimensions = ConfigCache.getAllowedDimensions();
+            List<String> biomeBlacklist = ConfigCache.getBiomeBlacklist();
 
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                 UUID playerId = player.getUuid();
                 ServerWorld world = player.getServerWorld();
+
+                // Check if player is in a blacklisted biome
+                Identifier biomeId = world.getRegistryManager()
+                        .get(RegistryKeys.BIOME)
+                        .getId(world.getBiome(player.getBlockPos()).value());
+                if (biomeId != null && biomeBlacklist.contains(biomeId.toString())) {
+                    PlayerLightTracker.reset(playerId);
+                    if (player.hasStatusEffect(Effects.MURKS_GRASP)) {
+                        player.removeStatusEffect(Effects.MURKS_GRASP);
+                        if (blindnessEnabled) {
+                            player.removeStatusEffect(StatusEffects.BLINDNESS);
+                        }
+                    }
+                    continue;
+                }
 
                 // Skip Creative mode players unless enabled
                 if (player.isCreative() && !enableCreativeEffect) {

@@ -22,7 +22,10 @@ public class ConfigCache {
     private static boolean enableUnderwaterLightCheck;
     private static boolean enableWarningText;
     private static boolean blindnessEnabled;
+    private static boolean useBiomeWhitelist;
     private static List<String> allowedDimensions;
+    private static List<String> biomeBlacklist;
+    private static List<String> biomeWhitelist;
     private static double droppedItemRadius;
     private static double nearbyPlayerRadius;
 
@@ -51,7 +54,10 @@ public class ConfigCache {
         enableUnderwaterLightCheck = config.general_enableUnderwaterLightCheck;
         enableWarningText = config.general_enableWarningText;
         blindnessEnabled = config.effect_blindnessEnabled;
+        useBiomeWhitelist = config.general_useBiomeWhitelist;
         allowedDimensions = config.general_dimensions;
+        biomeBlacklist = config.general_biomeBlacklist;
+        biomeWhitelist = config.general_biomeWhitelist;
         droppedItemRadius = config.lightSource_droppedItemRadius;
         nearbyPlayerRadius = config.lightSource_nearbyPlayerRadius;
     }
@@ -88,8 +94,20 @@ public class ConfigCache {
         return blindnessEnabled;
     }
 
+    public static boolean useBiomeWhitelist() {
+        return useBiomeWhitelist;
+    }
+
     public static List<String> getAllowedDimensions() {
         return allowedDimensions;
+    }
+
+    public static List<String> getBiomeBlacklist() {
+        return biomeBlacklist;
+    }
+
+    public static List<String> getBiomeWhitelist() {
+        return biomeWhitelist;
     }
 
     public static double getDroppedItemRadius() {

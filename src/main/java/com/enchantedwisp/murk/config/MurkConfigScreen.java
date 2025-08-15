@@ -16,7 +16,7 @@ public class MurkConfigScreen {
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
                 .setTitle(Text.literal("The Murk Config"))
-                .setSavingRunnable(TheMurk::saveConfig); // Only save on explicit save
+                .setSavingRunnable(TheMurk::saveConfig);
 
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
         MurkConfig config = TheMurk.getConfig();
@@ -41,7 +41,7 @@ public class MurkConfigScreen {
                 .build());
 
         general.addEntry(entryBuilder.startDoubleField(
-                        Text.literal("Warning Message Delay (seconds)"),
+                        Text.literal("Warning Delay (seconds)"),
                         config.general_warningMessageDelay)
                 .setTooltip(Text.of("Time in seconds before the warning message appears in low light. Default: 5.0"))
                 .setDefaultValue(5.0)
@@ -63,23 +63,52 @@ public class MurkConfigScreen {
         general.addEntry(entryBuilder.startStrList(
                         Text.literal("Dimensions"),
                         config.general_dimensions)
-                .setTooltip(Text.of("Dimensions where Murk's Grasp applies.\nUse IDs like \"minecraft:overworld\" or \"minecraft:the_nether\""))
+                .setTooltip(Text.of("Dimensions where Murk's Grasp applies.\nUse IDs like \"minecraft:overworld\", \"minecraft:the_nether\", \"minecraft:the_end\".\n" +
+                        "Available dimensions: minecraft:overworld, minecraft:the_nether, minecraft:the_end"))
                 .setDefaultValue(new ArrayList<>(Arrays.asList("minecraft:overworld")))
-                .setSaveConsumer(value -> config.general_dimensions = new ArrayList<>(new LinkedHashSet<>(value))) // Deduplicate
+                .setSaveConsumer(value -> config.general_dimensions = new ArrayList<>(new LinkedHashSet<>(value)))
+                .build());
+
+        general.addEntry(entryBuilder.startBooleanToggle(
+                        Text.literal("Use Biome Whitelist"),
+                        config.general_useBiomeWhitelist)
+                .setTooltip(Text.of("If true, Murk's Grasp only applies in biomes listed in Biome Whitelist.\nIf false, it applies everywhere except biomes in Biome Blacklist."))
+                .setDefaultValue(false)
+                .setSaveConsumer(value -> config.general_useBiomeWhitelist = value)
+                .build());
+
+        general.addEntry(entryBuilder.startStrList(
+                        Text.literal("Biome Blacklist"),
+                        config.general_biomeBlacklist)
+                .setTooltip(Text.of("Biomes where Murk's Grasp is disabled when Use Biome Whitelist is false.\n" +
+                        "Use IDs like \"minecraft:deep_dark\", \"minecraft:plains\".\n" +
+                        "Examples: minecraft:deep_dark, minecraft:plains, minecraft:desert, minecraft:forest"))
+                .setDefaultValue(new ArrayList<>())
+                .setSaveConsumer(value -> config.general_biomeBlacklist = new ArrayList<>(new LinkedHashSet<>(value)))
+                .build());
+
+        general.addEntry(entryBuilder.startStrList(
+                        Text.literal("Biome Whitelist"),
+                        config.general_biomeWhitelist)
+                .setTooltip(Text.of("Biomes where Murk's Grasp is enabled when Use Biome Whitelist is true.\n" +
+                        "Use IDs like \"minecraft:plains\", \"minecraft:forest\".\n" +
+                        "Examples: minecraft:plains, minecraft:desert, minecraft:forest, minecraft:swamp"))
+                .setDefaultValue(new ArrayList<>())
+                .setSaveConsumer(value -> config.general_biomeWhitelist = new ArrayList<>(new LinkedHashSet<>(value)))
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(
                         Text.literal("Enable Underwater Light Check"),
                         config.general_enableUnderwaterLightCheck)
-                .setTooltip(Text.of("Check light levels when the player is underwater."))
+                .setTooltip(Text.of("Enable light level checks when the player is underwater."))
                 .setDefaultValue(false)
                 .setSaveConsumer(value -> config.general_enableUnderwaterLightCheck = value)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(
-                        Text.literal("Enable Creative Effect"),
+                        Text.literal("Affect Creative Players"),
                         config.general_affectCreativePlayers)
-                .setTooltip(Text.of("Apply Murk's Grasp to players in Creative mode."))
+                .setTooltip(Text.of("Apply Murk's Grasp effect to players in Creative mode."))
                 .setDefaultValue(false)
                 .setSaveConsumer(value -> config.general_affectCreativePlayers = value)
                 .build());

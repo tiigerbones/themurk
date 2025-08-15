@@ -33,15 +33,24 @@ public class MurkConfig implements ConfigData {
     @Comment("List of dimension IDs where the effect applies (e.g., \"minecraft:overworld\", \"minecraft:the_nether\"). Default: [\"minecraft:overworld\"]")
     public List<String> general_dimensions = new ArrayList<>(Arrays.asList("minecraft:overworld"));
 
+    @Comment("Whether to use the biome whitelist instead of the blacklist. If true, Murk's Grasp only applies in biomes listed in Biome Whitelist. If false, it applies everywhere except biomes in Biome Blacklist. Default: false")
+    public boolean general_useBiomeWhitelist = false;
+
+    @Comment("List of biome IDs where Murk's Grasp effect is disabled when useBiomeWhitelist is false. \"Examples: minecraft:deep_dark, minecraft:plains, minecraft:desert, minecraft:forest\" Can be empty. Default: []")
+    public List<String> general_biomeBlacklist = new ArrayList<>();
+
+    @Comment("List of biome IDs where Murk's Grasp effect is enabled when useBiomeWhitelist is true. Can be empty. Default: []")
+    public List<String> general_biomeWhitelist = new ArrayList<>();
+
     @Comment("Enable light level checks when the player is underwater. Default: false")
     public boolean general_enableUnderwaterLightCheck = false;
 
     @Comment("Enable Murk's Grasp effect for players in Creative mode. Default: false")
     public boolean general_affectCreativePlayers = false;
 
-    @Comment("Duration (in seconds) that effects persist after entering a lit area. Default: 4.0")
+    @Comment("Duration (in seconds) that effects persist after entering a lit area. Default: 3.0")
     @ConfigEntry.Gui.PrefixText
-    public double effect_murksGraspPersistenceTime = 4.0;
+    public double effect_murksGraspPersistenceTime = 3.0;
 
     @Comment("Whether Murk's Grasp effect also applies Blindness. Default: true")
     public boolean effect_blindnessEnabled = true;
@@ -54,8 +63,8 @@ public class MurkConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 0, max = 20)
     public float effect_maxDamage = 2.0f;
 
-    @Comment("Time in seconds between damage ticks from Murk's Grasp. Default: 5.5")
-    public double effect_damageInterval = 5.5;
+    @Comment("Time in seconds between damage ticks from Murk's Grasp. Default: 4.5")
+    public double effect_damageInterval = 4.5;
 
     @Comment("Radius (in blocks) to detect dropped light-emitting items. Default: 5.0")
     @ConfigEntry.Gui.PrefixText
@@ -85,6 +94,32 @@ public class MurkConfig implements ConfigData {
                 TheMurk.LOGGER.info("Removed duplicates from general_dimensions. Original: {}, Unique: {}", general_dimensions, uniqueDims);
             }
             general_dimensions = new ArrayList<>(uniqueDims);
+        }
+
+        // Biome blacklist validation
+        general_biomeBlacklist = general_biomeBlacklist.stream()
+                .filter(biome -> biome != null && !biome.trim().isEmpty())
+                .distinct()
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (general_biomeBlacklist.size() > 0) {
+            LinkedHashSet<String> uniqueBiomes = new LinkedHashSet<>(general_biomeBlacklist);
+            if (uniqueBiomes.size() < general_biomeBlacklist.size()) {
+                TheMurk.LOGGER.info("Removed duplicates from general_biomeBlacklist. Original: {}, Unique: {}", general_biomeBlacklist, uniqueBiomes);
+            }
+            general_biomeBlacklist = new ArrayList<>(uniqueBiomes);
+        }
+
+        // Biome whitelist validation
+        general_biomeWhitelist = general_biomeWhitelist.stream()
+                .filter(biome -> biome != null && !biome.trim().isEmpty())
+                .distinct()
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (general_biomeWhitelist.size() > 0) {
+            LinkedHashSet<String> uniqueBiomes = new LinkedHashSet<>(general_biomeWhitelist);
+            if (uniqueBiomes.size() < general_biomeWhitelist.size()) {
+                TheMurk.LOGGER.info("Removed duplicates from general_biomeWhitelist. Original: {}, Unique: {}", general_biomeWhitelist, uniqueBiomes);
+            }
+            general_biomeWhitelist = new ArrayList<>(uniqueBiomes);
         }
 
         // Effect validation
