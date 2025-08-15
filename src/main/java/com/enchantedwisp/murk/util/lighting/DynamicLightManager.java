@@ -1,6 +1,8 @@
 package com.enchantedwisp.murk.util.lighting;
 
 import com.enchantedwisp.murk.TheMurk;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.ResourceType;
 import org.slf4j.Logger;
@@ -13,14 +15,18 @@ public class DynamicLightManager {
     public static void register() {
         LOGGER.info("Initializing dynamic lighting support for The Murk");
 
-        // Check for LambDynamicLights or Sodium Dynamic Lights
-        isDynamicLightingModLoaded = isLambDynamicLightsLoaded() || isSodiumDynamicLightsLoaded();
-        LOGGER.info("Dynamic lighting mod detected: {}", isDynamicLightingModLoaded ? "Yes" : "No");
+        // Only initialize dynamic lighting on the client
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            isDynamicLightingModLoaded = isLambDynamicLightsLoaded() || isSodiumDynamicLightsLoaded();
+            LOGGER.info("Dynamic lighting mod detected: {}", isDynamicLightingModLoaded ? "Yes" : "No");
 
-        if (isDynamicLightingModLoaded) {
-            ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
-                    new LightSourceLoader()
-            );
+            if (isDynamicLightingModLoaded) {
+                ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
+                        new LightSourceLoader()
+                );
+            }
+        } else {
+            LOGGER.info("Running on server, skipping dynamic lighting initialization.");
         }
     }
 
