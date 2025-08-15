@@ -102,7 +102,7 @@ public class LightLevelMonitor {
                         if (enableWarningText && ticks >= ticksUntilWarning && !PlayerLightTracker.isWarned(playerId)) {
 
                             String fullMessage = "An evil presence lurks in the dark nearby...";
-                            int totalFrames = 40; // how many updates total (~totalFrames * frameInterval ticks)
+                            int totalFrames = 28; // how many updates total (~totalFrames * frameInterval ticks)
                             int frameInterval = 2; // ticks between updates
                             double glitchDurationRatio = 0.4; // 40% of time is glitchy, last 60% normal
 
