@@ -2,6 +2,7 @@ package com.enchantedwisp.murk;
 
 import com.enchantedwisp.murk.config.MurkConfig;
 import com.enchantedwisp.murk.registry.Effects;
+import com.enchantedwisp.murk.registry.Sounds;
 import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.util.lighting.DynamicLightManager;
 import com.enchantedwisp.murk.util.tracker.LightLevelMonitor;
@@ -35,11 +36,14 @@ public class TheMurk implements ModInitializer {
 		// Initialize config cache
 		ConfigCache.initialize();
 
-		// Register effects
-		Effects.register();
+        // Register effects
+        Effects.register();
 
-		// Register dynamic lighting manager
-		DynamicLightManager.register();
+        // Register sounds
+        Sounds.init();
+
+        // Initialize dynamic lighting
+        DynamicLightManager.register();
 
 		// Register light level monitor
 		LightLevelMonitor.register();
