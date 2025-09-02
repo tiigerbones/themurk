@@ -100,12 +100,51 @@ public class LightLevelMonitor {
 
                         // Send warning message after configured delay if enabled
                         if (enableWarningText && ticks >= ticksUntilWarning && !PlayerLightTracker.isWarned(playerId)) {
-                            player.sendMessageToClient(
-                                    Text.literal("An evil presence lurks in the dark nearby...").styled(style -> style.withColor(0xFF5555)),
-                                    true // Use action bar
-                            );
+
+                            String fullMessage = "An evil presence lurks in the dark nearby...";
+                            int totalFrames = 28; // how many updates total (~totalFrames * frameInterval ticks)
+                            int frameInterval = 2; // ticks between updates
+                            double glitchDurationRatio = 0.4; // 40% of time is glitchy, last 60% normal
+
+                            final int[] frame = {0};
+                            final int[] tickCounter = {0};
+
+                            ServerTickEvents.END_SERVER_TICK.register(serverTick -> {
+                                if (frame[0] > totalFrames) {
+                                    return; // stop after total time
+                                }
+
+                                tickCounter[0]++;
+                                if (tickCounter[0] >= frameInterval) {
+                                    tickCounter[0] = 0;
+
+                                    boolean isGlitchPhase = frame[0] < totalFrames * glitchDurationRatio;
+
+                                    StringBuilder sb = new StringBuilder();
+                                    for (int i = 0; i < fullMessage.length(); i++) {
+                                        char c = fullMessage.charAt(i);
+                                        if (c == ' ') {
+                                            sb.append(' ');
+                                        } else if (isGlitchPhase && Math.random() < 0.2) {
+                                            // 20% chance per character to glitch during glitch phase
+                                            sb.append("§k").append(c).append("§r");
+                                        } else {
+                                            sb.append(c);
+                                        }
+                                    }
+
+                                    player.sendMessageToClient(
+                                            Text.literal(sb.toString()).styled(style -> style.withColor(0xFF5555)),
+                                            true
+                                    );
+
+                                    frame[0]++;
+                                }
+                            });
+
                             PlayerLightTracker.setWarned(playerId, true);
                         }
+
 
                         // Apply effect with infinite duration after configured total delay
                         if (ticks >= ticksUntilWarning + ticksAfterWarning) {
