@@ -23,6 +23,15 @@ public class MurkConfigScreen {
 
         // General Category
         ConfigCategory general = builder.getOrCreateCategory(Text.literal("General"));
+        general.addEntry(entryBuilder.startBooleanToggle(
+                        Text.literal("Enable Dynamic Light Support"),
+                        config.general_enableDynamicLightSupport)
+                .setTooltip(Text.of("Enable server-side support for light-emitting items (held, dropped, nearby players) based on JSON definitions.\n" +
+                        "This counts item light levels for the darkness effect, independent of client-side dynamic light mods."))
+                .setDefaultValue(false)
+                .setSaveConsumer(value -> config.general_enableDynamicLightSupport = value)
+                .build());
+
         general.addEntry(entryBuilder.startIntSlider(
                         Text.literal("Light Threshold"),
                         config.general_lightThreshold,
@@ -136,7 +145,7 @@ public class MurkConfigScreen {
                         Text.literal("Base Damage"),
                         config.effect_baseDamage)
                 .setTooltip(Text.of("Initial damage per interval from Murk's Grasp (in half-hearts)."))
-                .setDefaultValue(0.5f)
+                .setDefaultValue(3.5f)
                 .setMin(0.0f)
                 .setSaveConsumer(value -> config.effect_baseDamage = value)
                 .build());
@@ -145,7 +154,7 @@ public class MurkConfigScreen {
                         Text.literal("Max Damage"),
                         config.effect_maxDamage)
                 .setTooltip(Text.of("Maximum damage per interval after 60 seconds (in half-hearts)."))
-                .setDefaultValue(2.0f)
+                .setDefaultValue(6.0f)
                 .setMin(0.0f)
                 .setSaveConsumer(value -> config.effect_maxDamage = value)
                 .build());
@@ -154,7 +163,7 @@ public class MurkConfigScreen {
                         Text.literal("Damage Interval (seconds)"),
                         config.effect_damageInterval)
                 .setTooltip(Text.of("Time between damage ticks from Murk's Grasp (in seconds)."))
-                .setDefaultValue(5.5)
+                .setDefaultValue(4.5)
                 .setMin(1.0)
                 .setSaveConsumer(value -> config.effect_damageInterval = value)
                 .build());

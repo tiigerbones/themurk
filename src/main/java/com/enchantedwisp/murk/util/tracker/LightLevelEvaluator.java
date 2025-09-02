@@ -1,7 +1,6 @@
 package com.enchantedwisp.murk.util.tracker;
 
 import com.enchantedwisp.murk.util.ConfigCache;
-import com.enchantedwisp.murk.util.lighting.DynamicLightManager;
 import com.enchantedwisp.murk.util.lighting.LightSource;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
@@ -23,13 +22,13 @@ public class LightLevelEvaluator {
      */
     public static int getEffectiveLightLevel(ServerPlayerEntity player) {
         int blockLight = player.getWorld().getLightLevel(player.getBlockPos());
-        int itemLight = DynamicLightManager.isDynamicLightingModLoaded()
+        int itemLight = ConfigCache.isDynamicLightSupportEnabled()
                 ? LightLevelEvaluator.getPlayerItemLightLevel(player)
                 : 0;
-        int droppedItemLight = DynamicLightManager.isDynamicLightingModLoaded()
+        int droppedItemLight = ConfigCache.isDynamicLightSupportEnabled()
                 ? getDroppedItemLightLevel(player)
                 : 0;
-        int nearbyPlayerLight = DynamicLightManager.isDynamicLightingModLoaded()
+        int nearbyPlayerLight = ConfigCache.isDynamicLightSupportEnabled()
                 ? getNearbyPlayerLightLevel(player)
                 : 0;
         return Math.max(blockLight, Math.max(itemLight, Math.max(droppedItemLight, nearbyPlayerLight)));
@@ -39,7 +38,7 @@ public class LightLevelEvaluator {
      * Calculates the light level from a player's held items or trinkets.
      */
     public static int getPlayerItemLightLevel(PlayerEntity player) {
-        if (!DynamicLightManager.isDynamicLightingModLoaded()) {
+        if (!ConfigCache.isDynamicLightSupportEnabled()) {
             return 0;
         }
 

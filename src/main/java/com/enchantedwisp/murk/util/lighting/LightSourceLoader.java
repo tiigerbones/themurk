@@ -42,8 +42,10 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
             return;
         }
 
+        int loadedCount = 0;
         for (Map.Entry<Identifier, net.minecraft.resource.Resource> entry : resources.entrySet()) {
             Identifier id = entry.getKey();
+            LOGGER.info("Processing light source JSON: {}", id.getPath());
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(entry.getValue().getInputStream(), StandardCharsets.UTF_8))) {
 
@@ -109,18 +111,31 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
                     continue;
                 }
 
+                StringBuilder loadedItems = new StringBuilder();
                 for (int i = 0; i < itemsArray.size(); i++) {
                     Object obj = itemsArray.get(i);
                     if (!(obj instanceof JsonPrimitive)) continue;
                     String itemId = ((JsonPrimitive) obj).asString().trim();
                     if (itemId.isEmpty()) continue;
                     lightSources.put(itemId, new LightSource(luminance, waterSensitive));
+                    loadedItems.append(itemId).append(", ");
+                    loadedCount++;
+                }
+
+                if (loadedItems.length() > 0) {
+                    // Remove trailing comma and space
+                    loadedItems.setLength(loadedItems.length() - 2);
+                    LOGGER.info("Loaded from {}: items=[{}], luminance={}, water_sensitive={}",
+                            id.getPath(), loadedItems.toString(), luminance, waterSensitive);
+                } else {
+                    LOGGER.info("No items loaded from {} (empty after processing)", id.getPath());
                 }
 
             } catch (Exception e) {
                 LOGGER.error("Failed to process JSON {}: {}", id.getPath(), e.getMessage());
             }
         }
+        LOGGER.info("Light source loading complete. Total unique items registered: {}", loadedCount);
     }
 
     private Integer mapLuminanceType(JsonObject lum) {

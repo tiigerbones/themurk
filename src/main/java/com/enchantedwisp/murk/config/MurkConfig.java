@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 
 @Config(name = "murk")
 public class MurkConfig implements ConfigData {
+    @Comment("Enable support for dynamic light sources (held items, dropped items, nearby players) based on JSON definitions in data/murk/dynamiclights/item/. This allows the server to count item light levels independently of client mods. Default: false")
+    public boolean general_enableDynamicLightSupport = false;
+
     @Comment("Light level below which Murk's Grasp effect is triggered (0-15). Default: 3")
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.BoundedDiscrete(min = 0, max = 15)
@@ -55,13 +58,13 @@ public class MurkConfig implements ConfigData {
     @Comment("Whether Murk's Grasp effect also applies Blindness. Default: true")
     public boolean effect_blindnessEnabled = true;
 
-    @Comment("Base damage per interval when Murk's Grasp effect is applied. Default: 0.5")
+    @Comment("Base damage per interval when Murk's Grasp effect is applied. Default: 3.5")
     @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
-    public float effect_baseDamage = 0.5f;
+    public float effect_baseDamage = 3.5f;
 
-    @Comment("Maximum damage per interval after 60 seconds of Murk's Grasp effect. Default: 2.0")
+    @Comment("Maximum damage per interval after 60 seconds of Murk's Grasp effect. Default: 6.0")
     @ConfigEntry.BoundedDiscrete(min = 0, max = 20)
-    public float effect_maxDamage = 2.0f;
+    public float effect_maxDamage = 6.0f;
 
     @Comment("Time in seconds between damage ticks from Murk's Grasp. Default: 4.5")
     public double effect_damageInterval = 4.5;
@@ -84,6 +87,12 @@ public class MurkConfig implements ConfigData {
                 .filter(dim -> dim != null && !dim.trim().isEmpty())
                 .distinct()
                 .collect(Collectors.toCollection(ArrayList::new));
+
+        if (general_effectDelayAfterWarning < 1 || general_effectDelayAfterWarning > 60 || Double.isNaN(general_effectDelayAfterWarning) || Double.isInfinite(general_effectDelayAfterWarning)) {
+            TheMurk.LOGGER.warn("Correcting general_effectDelayAfterWarning: {} to 10.0. Must be between 1 and 60.", general_effectDelayAfterWarning);
+            general_effectDelayAfterWarning = 10.0;
+        }
+
         if (general_dimensions.isEmpty()) {
             TheMurk.LOGGER.warn("Correcting general_dimensions: {} to [\"minecraft:overworld\"]. Must not be empty.", general_dimensions);
             general_dimensions = new ArrayList<>(Arrays.asList("minecraft:overworld"));
@@ -136,8 +145,8 @@ public class MurkConfig implements ConfigData {
             effect_maxDamage = Math.max(effect_baseDamage, effect_maxDamage);
         }
         if (effect_damageInterval < 1 || Double.isNaN(effect_damageInterval) || Double.isInfinite(effect_damageInterval)) {
-            TheMurk.LOGGER.warn("Correcting effect_damageInterval: {} to 5.5. Must be >= 1.", effect_damageInterval);
-            effect_damageInterval = 5.5;
+            TheMurk.LOGGER.warn("Correcting effect_damageInterval: {} to 4.5. Must be >= 1.", effect_damageInterval);
+            effect_damageInterval = 4.5;
         }
 
         // LightSource validation
