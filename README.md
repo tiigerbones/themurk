@@ -33,7 +33,7 @@ Edit `config/murk.json5` to tweak:
 - Dimensions where the effect applies (e.g., `minecraft:overworld`, `minecraft:the_nether`)
 - Effect duration after finding a light source, damage, and Blindness toggle
 - Light source properties and detection radius
-- For **LambDynamicLights** integration, ensure each light-emitting item has a corresponding JSON file in `assets/murk/dynamiclights/item/` (e.g., `torch.json`, `lantern.json`). See documentation: https://lambdaurora.dev/projects/lambdynamiclights/docs/v4/item.html
+- For **LambDynamicLights** integration, ensure each light-emitting item has a corresponding JSON file in `assets/murk/dynamiclights/item/` and `data/murk/dynamiclights/item/` (e.g., `torch.json`, `lantern.json`). See documentation: https://lambdaurora.dev/projects/lambdynamiclights/docs/v4/item.html
 - for **Sodium Dynamic Lights** see file example in the mods asset folder in sodiums dynamic lights jar file `dynamiclights/item/` although from what i tested doesnt visually make the block or item emit light only lets my mod detect it and prevents the status effect.
 
 Use **ModMenu** for in-game configuration with categorized settings (General, Effect, Light Source) and tooltips for clarity.
