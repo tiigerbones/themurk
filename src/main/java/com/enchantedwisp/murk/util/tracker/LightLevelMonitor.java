@@ -25,17 +25,7 @@ public class LightLevelMonitor {
      */
     public static void register() {
         LOGGER.info("Registering LightLevelMonitor");
-        ConfigCache.initialize(); // Initialize config cache
-
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            int lightThreshold = ConfigCache.getLightThreshold();
-            int litAreaDurationTicks = ConfigCache.getLitAreaDurationTicks();
-            int ticksUntilWarning = ConfigCache.getTicksUntilWarning();
-            int ticksAfterWarning = ConfigCache.getTicksAfterWarning();
-            boolean enableCreativeEffect = ConfigCache.isCreativeEffectEnabled();
-            boolean enableUnderwaterLightCheck = ConfigCache.isUnderwaterLightCheckEnabled();
-            boolean enableWarningText = ConfigCache.isWarningTextEnabled();
-            boolean blindnessEnabled = ConfigCache.isBlindnessEnabled();
             List<String> allowedDimensions = ConfigCache.getAllowedDimensions();
             List<String> biomeBlacklist = ConfigCache.getBiomeBlacklist();
 
@@ -51,7 +41,7 @@ public class LightLevelMonitor {
                     PlayerLightTracker.reset(playerId);
                     if (player.hasStatusEffect(Effects.MURKS_GRASP)) {
                         player.removeStatusEffect(Effects.MURKS_GRASP);
-                        if (blindnessEnabled) {
+                        if (ConfigCache.isBlindnessEnabled()) {
                             player.removeStatusEffect(StatusEffects.BLINDNESS);
                         }
                     }
@@ -59,11 +49,11 @@ public class LightLevelMonitor {
                 }
 
                 // Skip Creative mode players unless enabled
-                if (player.isCreative() && !enableCreativeEffect) {
+                if (player.isCreative() && !ConfigCache.isCreativeEffectEnabled()) {
                     PlayerLightTracker.reset(playerId);
                     if (player.hasStatusEffect(Effects.MURKS_GRASP)) {
                         player.removeStatusEffect(Effects.MURKS_GRASP);
-                        if (blindnessEnabled) {
+                        if (ConfigCache.isBlindnessEnabled()) {
                             player.removeStatusEffect(StatusEffects.BLINDNESS);
                         }
                     }
@@ -78,11 +68,11 @@ public class LightLevelMonitor {
                 }
 
                 // Skip light checks if underwater and not enabled
-                if (!enableUnderwaterLightCheck && player.isSubmergedInWater()) {
+                if (!ConfigCache.isUnderwaterLightCheckEnabled() && player.isSubmergedInWater()) {
                     PlayerLightTracker.reset(playerId);
                     if (player.hasStatusEffect(Effects.MURKS_GRASP)) {
                         player.removeStatusEffect(Effects.MURKS_GRASP);
-                        if (blindnessEnabled) {
+                        if (ConfigCache.isBlindnessEnabled()) {
                             player.removeStatusEffect(StatusEffects.BLINDNESS);
                         }
                     }
@@ -91,7 +81,7 @@ public class LightLevelMonitor {
 
                 // Check total light level
                 int lightLevel = LightLevelEvaluator.getEffectiveLightLevel(player);
-                if (lightLevel < lightThreshold) {
+                if (lightLevel < ConfigCache.getLightThreshold()) {
                     // Player is in low light
                     if (!player.hasStatusEffect(Effects.MURKS_GRASP)) {
                         // Increment tick counter if effect not yet applied
@@ -99,7 +89,7 @@ public class LightLevelMonitor {
                         int ticks = PlayerLightTracker.getLowLightTicks(playerId);
 
                         // Send warning message after configured delay if enabled
-                        if (enableWarningText && ticks >= ticksUntilWarning && !PlayerLightTracker.isWarned(playerId)) {
+                        if (ConfigCache.isWarningTextEnabled() && ticks >= ConfigCache.getTicksUntilWarning() && !PlayerLightTracker.isWarned(playerId)) {
 
                             String fullMessage = "An evil presence lurks in the dark nearby...";
                             int totalFrames = 28; // how many updates total (~totalFrames * frameInterval ticks)
@@ -147,7 +137,7 @@ public class LightLevelMonitor {
 
 
                         // Apply effect with infinite duration after configured total delay
-                        if (ticks >= ticksUntilWarning + ticksAfterWarning) {
+                        if (ticks >= ConfigCache.getTicksUntilWarning() + ConfigCache.getTicksAfterWarning()) {
                             player.addStatusEffect(new StatusEffectInstance(
                                     Effects.MURKS_GRASP,
                                     -1, // Infinite duration
@@ -155,7 +145,7 @@ public class LightLevelMonitor {
                                     false, // Not ambient
                                     true // Show particles
                             ));
-                            if (blindnessEnabled) {
+                            if (ConfigCache.isBlindnessEnabled()) {
                                 player.addStatusEffect(new StatusEffectInstance(
                                         StatusEffects.BLINDNESS,
                                         -1, // Infinite duration
@@ -174,17 +164,17 @@ public class LightLevelMonitor {
                         player.removeStatusEffect(Effects.MURKS_GRASP);
                         player.addStatusEffect(new StatusEffectInstance(
                                 Effects.MURKS_GRASP,
-                                litAreaDurationTicks,
+                                ConfigCache.getLitAreaDurationTicks(),
                                 0, // Amplifier 0
                                 false, // Not ambient
                                 true // Show particles
                         ));
                         // Remove and reapply Blindness effect with configured duration if enabled
-                        if (blindnessEnabled) {
+                        if (ConfigCache.isBlindnessEnabled()) {
                             player.removeStatusEffect(StatusEffects.BLINDNESS);
                             player.addStatusEffect(new StatusEffectInstance(
                                     StatusEffects.BLINDNESS,
-                                    litAreaDurationTicks,
+                                    ConfigCache.getLitAreaDurationTicks(),
                                     0, // Amplifier 0
                                     false, // Not ambient
                                     false // Hide particles

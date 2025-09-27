@@ -21,7 +21,7 @@ public class ClientMixin {
             // Apply subtle screen shake
             ScreenshakeInstance shake = new ScreenshakeInstance(20);
             shake.setEasing(Easing.SINE_IN_OUT); // Smooth easing for ramp-up and ramp-down
-            shake.setIntensity(0.1f); // Subtle shake
+            shake.setIntensity(0.05f); // Subtle shake
             ScreenshakeHandler.addScreenshake(shake);
         }
     }
