@@ -26,9 +26,6 @@ public class LightLevelMonitor {
     public static void register() {
         LOGGER.info("Registering LightLevelMonitor");
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            List<String> allowedDimensions = ConfigCache.getAllowedDimensions();
-            List<String> biomeBlacklist = ConfigCache.getBiomeBlacklist();
-
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                 UUID playerId = player.getUuid();
                 ServerWorld world = player.getServerWorld();
@@ -37,7 +34,7 @@ public class LightLevelMonitor {
                 Identifier biomeId = world.getRegistryManager()
                         .get(RegistryKeys.BIOME)
                         .getId(world.getBiome(player.getBlockPos()).value());
-                if (biomeId != null && biomeBlacklist.contains(biomeId.toString())) {
+                if (biomeId != null && ConfigCache.getBiomeBlacklist().contains(biomeId.toString())) {
                     PlayerLightTracker.reset(playerId);
                     if (player.hasStatusEffect(Effects.MURKS_GRASP)) {
                         player.removeStatusEffect(Effects.MURKS_GRASP);
@@ -62,7 +59,7 @@ public class LightLevelMonitor {
 
                 // Check if player is in an allowed dimension
                 Identifier dimensionId = world.getRegistryKey().getValue();
-                if (!allowedDimensions.contains(dimensionId.toString())) {
+                if (!ConfigCache.getAllowedDimensions().contains(dimensionId.toString())) {
                     PlayerLightTracker.reset(playerId);
                     continue;
                 }
