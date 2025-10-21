@@ -74,7 +74,7 @@ public class ChromaticShaderManager {
                 }
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            LOGGER.error("Failed to access shader passes", e);
+            LOGGER.debug("Failed to access shader passes", e);
         }
 
         chromaticShader.render(tickDelta);
