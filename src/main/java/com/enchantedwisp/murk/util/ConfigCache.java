@@ -29,6 +29,10 @@ public class ConfigCache {
     private static List<String> biomeWhitelist;
     private static double droppedItemRadius;
     private static double nearbyPlayerRadius;
+    private static float baseDamage;
+    private static float maxDamage;
+    private static double damageInterval;
+
 
     /**
      * Initializes the config cache and registers a save listener.
@@ -62,6 +66,9 @@ public class ConfigCache {
         biomeWhitelist = config.general_biomeWhitelist;
         droppedItemRadius = config.lightSource_droppedItemRadius;
         nearbyPlayerRadius = config.lightSource_nearbyPlayerRadius;
+        baseDamage = config.effect_baseDamage;
+        maxDamage = config.effect_maxDamage;
+        damageInterval = config.effect_damageInterval;
     }
 
     public static int getLightThreshold() {
@@ -122,5 +129,17 @@ public class ConfigCache {
 
     public static double getNearbyPlayerRadius() {
         return nearbyPlayerRadius;
+    }
+
+    public static float getBaseDamage() {
+       return baseDamage;
+    }
+
+    public static float getMaxDamage() {
+        return maxDamage;
+    }
+
+    public static double getDamageInterval() {
+        return damageInterval;
     }
 }

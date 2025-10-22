@@ -7,12 +7,13 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 public class Effects {
+    public static final String EFFECT_ID = "murks_grasp";
     public static final StatusEffect MURKS_GRASP = new MurkGraspEffect();
 
     public static void register() {
         Registry.register(
                 Registries.STATUS_EFFECT,
-                Identifier.of("murk", MurkGraspEffect.EFFECT_ID),
+                Identifier.of("murk", EFFECT_ID),
                 MURKS_GRASP
         );
     }

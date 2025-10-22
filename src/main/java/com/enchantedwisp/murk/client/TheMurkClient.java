@@ -2,7 +2,7 @@ package com.enchantedwisp.murk.client;
 
 import com.enchantedwisp.murk.TheMurk;
 import com.enchantedwisp.murk.client.shader.ChromaticShaderManager;
-import com.enchantedwisp.murk.client.sound.MurkSoundManager;
+import com.enchantedwisp.murk.client.sound.PhaseSoundManager;
 import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.registry.Sounds;
 import net.fabricmc.api.ClientModInitializer;
@@ -66,9 +66,9 @@ public class TheMurkClient implements ClientModInitializer {
 
                 // Manage sound effects
                 if (hasMurkGrasp) {
-                    MurkSoundManager.startSound(player);
+                    PhaseSoundManager.startSound(player);
                 } else {
-                    MurkSoundManager.stopSound(player);
+                    PhaseSoundManager.stopSound(player);
                 }
 
                 // Play murk_vanish sound when MurksGraspEffect expires

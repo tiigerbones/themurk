@@ -6,10 +6,10 @@ import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 
-public class MurkGraspSoundInstance extends MovingSoundInstance {
+public class PhaseSoundInstance extends MovingSoundInstance {
     private final PlayerEntity player;
 
-    public MurkGraspSoundInstance(PlayerEntity player) {
+    public PhaseSoundInstance(PlayerEntity player) {
         super(Sounds.MURK_WHISPERS, SoundCategory.PLAYERS, SoundInstance.createRandom());
         this.player = player;
         this.repeat = true; // Enable looping
