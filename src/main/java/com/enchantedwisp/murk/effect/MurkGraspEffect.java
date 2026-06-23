@@ -31,8 +31,8 @@ public class MurkGraspEffect extends StatusEffect {
     }
 
     @Override
-    public boolean applyUpdateEffect(LivingEntity entity, int amplifier) {
-        if (!entity.getWorld().isClient && entity instanceof ServerPlayerEntity player) {
+    public boolean applyUpdateEffect(ServerWorld world, LivingEntity entity, int amplifier) {
+        if (entity instanceof ServerPlayerEntity player) {
             UUID id = player.getUuid();
 
             if (PlayerLightTracker.isDurationReduced(id)) {
@@ -41,7 +41,7 @@ public class MurkGraspEffect extends StatusEffect {
 
             PlayerLightTracker.incrementEffectTicks(id);
 
-            long worldTime = entity.getWorld().getTime();
+            long worldTime = world.getTime();  // Use the passed world
             int damageIntervalTicks = (int) (ConfigCache.getDamageInterval() * 20);
 
             if (worldTime % damageIntervalTicks != 0) {
@@ -50,15 +50,15 @@ public class MurkGraspEffect extends StatusEffect {
 
             int effectTicks = PlayerLightTracker.getEffectTicks(id);
             float progress = Math.min(1.0f, (float) effectTicks / RAMP_TIME_TICKS);
-            float damage = ConfigCache.getBaseDamage()
+            float damageAmount = ConfigCache.getBaseDamage()
                     + (ConfigCache.getMaxDamage() - ConfigCache.getBaseDamage()) * progress;
 
-            player.damage((ServerWorld) player.getWorld(), DamageTypes.of(player.getWorld()), damage);
+            player.damage(world, DamageTypes.of(world), damageAmount);
 
             TheMurk.LOGGER.debug(
                     "Applied Murk damage to {}: {} (progress={})",
                     player.getName().getString(),
-                    damage,
+                    damageAmount,
                     progress
             );
         }
