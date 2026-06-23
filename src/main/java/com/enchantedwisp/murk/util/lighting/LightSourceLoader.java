@@ -23,7 +23,7 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
 
     @Override
     public Identifier getFabricId() {
-        return new Identifier(TheMurk.MOD_ID, "dynamic_light_loader");
+        return Identifier.of(TheMurk.MOD_ID, "dynamic_light_loader");
     }
 
     @Override
@@ -153,7 +153,7 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
     }
 
     private Integer getBlockLuminance(String blockId) {
-        Block block = Registries.BLOCK.get(new Identifier(blockId));
+        Block block = Registries.BLOCK.get(Identifier.of(blockId));
         if (block == null || block == Blocks.AIR) return null;
         return block.getDefaultState().getLuminance();
     }
@@ -163,7 +163,7 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
         // Example: For "minecraft:torch", this returns torch block luminance
         try {
             String itemId = lum.get(String.class, "block"); // assuming block key if needed
-            Item item = Registries.ITEM.get(new Identifier(itemId));
+            Item item = Registries.ITEM.get(Identifier.of(itemId));
             Block block = Block.getBlockFromItem(item);
             if (block == null || block == Blocks.AIR) return null;
             return block.getDefaultState().getLuminance();

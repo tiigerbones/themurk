@@ -5,6 +5,7 @@ import com.enchantedwisp.murk.registry.Effects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(InGameHud.class)
 public class ClientMixin {
     @Inject(method = "render", at = @At("TAIL"))
-    private void murk$renderShake(DrawContext context, float tickDelta, CallbackInfo ci) {
+    private void murk$renderShake(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
         PlayerEntity player = client.player;
 

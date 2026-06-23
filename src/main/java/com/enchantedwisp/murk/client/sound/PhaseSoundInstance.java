@@ -1,5 +1,6 @@
 package com.enchantedwisp.murk.client.sound;
 
+import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.registry.Sounds;
 import net.minecraft.client.sound.MovingSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
@@ -23,10 +24,9 @@ public class PhaseSoundInstance extends MovingSoundInstance {
 
     @Override
     public void tick() {
-        if (!this.player.isAlive() || !this.player.hasStatusEffect(com.enchantedwisp.murk.registry.Effects.MURKS_GRASP)) {
-            this.setDone(); // Stop sound if player is dead or the effect is gone
+        if (!this.player.isAlive() || !this.player.hasStatusEffect(Effects.MURKS_GRASP)) {
+            this.setDone();
         } else {
-            // Update sound position to follow the player
             this.x = this.player.getX();
             this.y = this.player.getY();
             this.z = this.player.getZ();

@@ -21,7 +21,7 @@ public class ChromaticShaderManager {
     private static float time = 0f;
     private static float intensity = 0f;
 
-    private static final Identifier SHADER_ID = new Identifier("murk", "shaders/post/chromatic_aberration.json");
+    private static final Identifier SHADER_ID = Identifier.of("murk", "shaders/post/chromatic_aberration.json");
 
     /** Initialize the shader (call once on client setup) */
     public static void init() {

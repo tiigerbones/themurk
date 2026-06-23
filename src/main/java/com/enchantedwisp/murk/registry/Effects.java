@@ -4,17 +4,17 @@ import com.enchantedwisp.murk.effect.MurkGraspEffect;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 public class Effects {
-    public static final String EFFECT_ID = "murks_grasp";
-    public static final StatusEffect MURKS_GRASP = new MurkGraspEffect();
+    public static RegistryEntry<StatusEffect> MURKS_GRASP;
 
     public static void register() {
-        Registry.register(
+        MURKS_GRASP = Registry.registerReference(
                 Registries.STATUS_EFFECT,
-                Identifier.of("murk", EFFECT_ID),
-                MURKS_GRASP
+                Identifier.of("murk", "murks_grasp"),
+                new MurkGraspEffect()
         );
     }
 }

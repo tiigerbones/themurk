@@ -10,10 +10,8 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.util.Identifier;
 
 import java.util.UUID;
 
@@ -25,42 +23,46 @@ public class MurkGraspEffect extends StatusEffect {
         super(StatusEffectCategory.HARMFUL, 0x1A1A1A); // Dark purple-gray color
         this.addAttributeModifier(
                 EntityAttributes.GENERIC_MOVEMENT_SPEED,
-                String.valueOf(SLOW_MOVEMENT_UUID),
+                Identifier.of(String.valueOf(SLOW_MOVEMENT_UUID)),
                 -0.15, // 15% speed reduction
-                EntityAttributeModifier.Operation.MULTIPLY_TOTAL
+                EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
         );
     }
 
     @Override
-    public void applyUpdateEffect(LivingEntity entity, int amplifier) {
+    public boolean applyUpdateEffect(LivingEntity entity, int amplifier) {
         if (!entity.getWorld().isClient && entity instanceof ServerPlayerEntity player) {
             UUID id = player.getUuid();
 
-            // Skip all logic in recovery persistence
             if (PlayerLightTracker.isDurationReduced(id)) {
-                return;
+                return true;
             }
 
-            // Increment exposure for ramp (every tick, cumulative across sessions if not reset)
             PlayerLightTracker.incrementEffectTicks(id);
 
-            // Damage only at interval
             long worldTime = entity.getWorld().getTime();
             int damageIntervalTicks = (int) (ConfigCache.getDamageInterval() * 20);
+
             if (worldTime % damageIntervalTicks != 0) {
-                return;
+                return true;
             }
 
-            // Calculate ramped damage over total exposure
             int effectTicks = PlayerLightTracker.getEffectTicks(id);
             float progress = Math.min(1.0f, (float) effectTicks / RAMP_TIME_TICKS);
-            float damage = ConfigCache.getBaseDamage() + (ConfigCache.getMaxDamage() - ConfigCache.getBaseDamage()) * progress;
+            float damage = ConfigCache.getBaseDamage()
+                    + (ConfigCache.getMaxDamage() - ConfigCache.getBaseDamage()) * progress;
 
-            // Apply Murk damage
-            if (player.damage(DamageTypes.of(player.getWorld()), damage)) {
-                TheMurk.LOGGER.debug("Applied Murk damage to {}: {} (progress={})", player.getName().getString(), damage, progress);
-            }
+            player.damage(DamageTypes.of(player.getWorld()), damage);
+
+            TheMurk.LOGGER.debug(
+                    "Applied Murk damage to {}: {} (progress={})",
+                    player.getName().getString(),
+                    damage,
+                    progress
+            );
         }
+
+        return true;
     }
 
     @Override
@@ -69,7 +71,7 @@ public class MurkGraspEffect extends StatusEffect {
     }
 
     @Override
-    public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
-        super.onApplied(entity, attributes, amplifier);
+    public void onApplied(AttributeContainer attributes, int amplifier) {
+        super.onApplied(attributes, amplifier);
     }
 }

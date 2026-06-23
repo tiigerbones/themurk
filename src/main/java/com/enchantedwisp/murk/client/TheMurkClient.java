@@ -42,7 +42,7 @@ public class TheMurkClient implements ClientModInitializer {
         });
 
         // Register HUD render callback to detect framebuffer size changes
-        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
+        HudRenderCallback.EVENT.register((drawContext, tickCounter) -> {
             MinecraftClient client = MinecraftClient.getInstance();
             int currentWidth = client.getWindow().getFramebufferWidth();
             int currentHeight = client.getWindow().getFramebufferHeight();
@@ -95,7 +95,7 @@ public class TheMurkClient implements ClientModInitializer {
 
         // NEW: Register world render last event for frame-based shader rendering
         WorldRenderEvents.LAST.register(context -> {
-            float tickDelta = context.tickDelta();  // Accurate partial tick for smooth animation
+            float tickDelta = context.tickCounter().getTickDelta(false);  // Accurate partial tick for smooth animation
             PlayerEntity player = MinecraftClient.getInstance().player;
             if (player == null) return;
 
