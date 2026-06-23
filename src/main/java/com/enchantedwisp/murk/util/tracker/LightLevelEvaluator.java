@@ -18,6 +18,21 @@ import java.util.Optional;
 
 public class LightLevelEvaluator {
     /**
+     * Checks if Trinkets mod is loaded.
+     */
+    private static final boolean TRINKETS_LOADED;
+    static {
+        boolean loaded;
+        try {
+            Class.forName("dev.emi.trinkets.api.TrinketsApi");
+            loaded = true;
+        } catch (ClassNotFoundException e) {
+            loaded = false;
+        }
+        TRINKETS_LOADED = loaded;
+    }
+
+    /**
      * Calculates the effective light level for a player.
      */
     public static int getEffectiveLightLevel(ServerPlayerEntity player) {
@@ -63,7 +78,7 @@ public class LightLevelEvaluator {
         }
 
         // Check trinkets
-        if (isTrinketsLoaded()) {
+        if (TRINKETS_LOADED) {
             Optional<TrinketComponent> trinketComponent = TrinketsApi.getTrinketComponent(player);
             if (trinketComponent.isPresent()) {
                 for (var group : trinketComponent.get().getAllEquipped()) {
@@ -111,7 +126,7 @@ public class LightLevelEvaluator {
                     }
                     // Check line of sight with transparency
                     Vec3d itemPos = itemEntity.getPos().add(0, 0.5, 0); // Center of item entity
-                    if (RaycastUtil.hasLineOfSight(world, playerEyePos, itemPos)) {
+                    if (!RaycastUtil.hasLineOfSight(world, player, playerEyePos, itemPos)) {
                         continue;
                     }
                     if (entry.luminance > maxLightLevel) {
@@ -145,7 +160,7 @@ public class LightLevelEvaluator {
             if (lightLevel > 0) {
                 // Check line of sight with transparency
                 Vec3d nearbyPlayerEyePos = nearbyPlayer.getEyePos();
-                if (RaycastUtil.hasLineOfSight(world, playerEyePos, nearbyPlayerEyePos)) {
+                if (!RaycastUtil.hasLineOfSight(world, player, playerEyePos, nearbyPlayerEyePos)) {
                     continue;
                 }
                 if (lightLevel > maxLightLevel) {
@@ -157,15 +172,4 @@ public class LightLevelEvaluator {
         return maxLightLevel;
     }
 
-    /**
-     * Checks if Trinkets mod is loaded.
-     */
-    private static boolean isTrinketsLoaded() {
-        try {
-            Class.forName("dev.emi.trinkets.api.TrinketsApi");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
 }
