@@ -11,6 +11,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 
 import java.util.UUID;
@@ -22,7 +23,7 @@ public class MurkGraspEffect extends StatusEffect {
     public MurkGraspEffect() {
         super(StatusEffectCategory.HARMFUL, 0x1A1A1A); // Dark purple-gray color
         this.addAttributeModifier(
-                EntityAttributes.GENERIC_MOVEMENT_SPEED,
+                EntityAttributes.MOVEMENT_SPEED,
                 Identifier.of(String.valueOf(SLOW_MOVEMENT_UUID)),
                 -0.15, // 15% speed reduction
                 EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
@@ -52,7 +53,7 @@ public class MurkGraspEffect extends StatusEffect {
             float damage = ConfigCache.getBaseDamage()
                     + (ConfigCache.getMaxDamage() - ConfigCache.getBaseDamage()) * progress;
 
-            player.damage(DamageTypes.of(player.getWorld()), damage);
+            player.damage((ServerWorld) player.getWorld(), DamageTypes.of(player.getWorld()), damage);
 
             TheMurk.LOGGER.debug(
                     "Applied Murk damage to {}: {} (progress={})",
