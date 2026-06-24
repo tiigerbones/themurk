@@ -3,12 +3,12 @@ package com.enchantedwisp.murk.util.lighting;
 import com.enchantedwisp.murk.TheMurk;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.*;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,16 +23,16 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
 
     @Override
     public Identifier getFabricId() {
-        return Identifier.of(TheMurk.MOD_ID, "dynamic_light_loader");
+        return Identifier.fromNamespaceAndPath(TheMurk.MOD_ID, "dynamic_light_loader");
     }
 
     @Override
-    public void reload(ResourceManager manager) {
+    public void onResourceManagerReload(ResourceManager manager) {
         Map<String, LightSource> lightSources = LightSource.getLightSources();
         lightSources.clear();
         String path = "assets/" + TheMurk.MOD_ID + "/dynamiclights/item/";
 
-        Map<Identifier, net.minecraft.resource.Resource> resources = manager.findResources(
+        Map<Identifier, net.minecraft.server.packs.resources.Resource> resources = manager.listResources(
                 "dynamiclights/item",
                 id -> id.getNamespace().equals(TheMurk.MOD_ID) && id.getPath().endsWith(".json")
         );
@@ -43,11 +43,11 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
         }
 
         int loadedCount = 0;
-        for (Map.Entry<Identifier, net.minecraft.resource.Resource> entry : resources.entrySet()) {
+        for (Map.Entry<Identifier, net.minecraft.server.packs.resources.Resource> entry : resources.entrySet()) {
             Identifier id = entry.getKey();
             LOGGER.info("Processing light source JSON: {}", id.getPath());
             try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(entry.getValue().getInputStream(), StandardCharsets.UTF_8))) {
+                    new InputStreamReader(entry.getValue().open(), StandardCharsets.UTF_8))) {
 
                 StringBuilder content = new StringBuilder();
                 String line;
@@ -153,9 +153,9 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
     }
 
     private Integer getBlockLuminance(String blockId) {
-        Block block = Registries.BLOCK.get(Identifier.of(blockId));
+        Block block = BuiltInRegistries.BLOCK.getValue(Identifier.parse(blockId));
         if (block == null || block == Blocks.AIR) return null;
-        return block.getDefaultState().getLuminance();
+        return block.defaultBlockState().getLightEmission();
     }
 
     private Integer getSelfBlockLuminance(JsonObject lum) {
@@ -163,10 +163,10 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
         // Example: For "minecraft:torch", this returns torch block luminance
         try {
             String itemId = lum.get(String.class, "block"); // assuming block key if needed
-            Item item = Registries.ITEM.get(Identifier.of(itemId));
-            Block block = Block.getBlockFromItem(item);
+            Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(itemId));
+            Block block = Block.byItem(item);
             if (block == null || block == Blocks.AIR) return null;
-            return block.getDefaultState().getLuminance();
+            return block.defaultBlockState().getLightEmission();
         } catch (Exception e) {
             return null;
         }

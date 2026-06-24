@@ -2,22 +2,22 @@ package com.enchantedwisp.murk.core.phases;
 
 import com.enchantedwisp.murk.core.PhaseHandler;
 import com.enchantedwisp.murk.util.tracker.PlayerLightTracker;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 
 public class LowPhase implements PhaseHandler {
 
     @Override
-    public void onEnter(ServerPlayerEntity player) {
-        PlayerLightTracker.reset(player.getUuid());
+    public void onEnter(ServerPlayer player) {
+        PlayerLightTracker.reset(player.getUUID());
     }
 
     @Override
-    public void onExit(ServerPlayerEntity player) {}
+    public void onExit(ServerPlayer player) {}
 
     @Override
-    public void tick(ServerPlayerEntity player, ServerWorld world) {
+    public void tick(ServerPlayer player, ServerLevel world) {
         // Increment only in low light
-        PlayerLightTracker.incrementLowLightTicks(player.getUuid());
+        PlayerLightTracker.incrementLowLightTicks(player.getUUID());
     }
 }

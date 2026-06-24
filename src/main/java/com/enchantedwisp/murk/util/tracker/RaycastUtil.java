@@ -1,30 +1,27 @@
 package com.enchantedwisp.murk.util.tracker;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class RaycastUtil {
     /**
      * Checks if there is a clear line of sight between two points, respecting transparent blocks.
      */
     public static boolean hasLineOfSight(
-            ServerWorld world,
+            ServerLevel world,
             Entity entity,
-            Vec3d start,
-            Vec3d end
+            Vec3 start,
+            Vec3 end
     ) {
-        return world.raycast(
-                new RaycastContext(
+        return world.clip(
+                new ClipContext(
                         start,
                         end,
-                        RaycastContext.ShapeType.VISUAL,
-                        RaycastContext.FluidHandling.NONE,
+                        ClipContext.Block.VISUAL,
+                        ClipContext.Fluid.NONE,
                         entity
                 )
         ).getType() == HitResult.Type.MISS;

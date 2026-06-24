@@ -6,11 +6,11 @@ import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.registry.Sounds;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.sound.SoundCategory;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +30,10 @@ public class TheMurkClient implements ClientModInitializer {
         // Register client tick event for tick-based logic only (sounds, vanish sound, effect tracking)
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             ScreenEffectManager.tick();
-            PlayerEntity player = MinecraftClient.getInstance().player;
+            Player player = Minecraft.getInstance().player;
             if (player != null) {
-                UUID playerId = player.getUuid();
-                boolean hasMurkGrasp = player.hasStatusEffect(Effects.MURKS_GRASP);
+                UUID playerId = player.getUUID();
+                boolean hasMurkGrasp = player.hasEffect(Effects.MURKS_GRASP);
 
                 // Manage sound effects
                 if (hasMurkGrasp) {
@@ -45,13 +45,13 @@ public class TheMurkClient implements ClientModInitializer {
                 // Play murk_vanish sound when MurksGraspEffect expires
                 boolean hadEffectLastTick = hadMurkGraspLastTick.getOrDefault(playerId, false);
                 if (hadEffectLastTick && !hasMurkGrasp) {
-                    MinecraftClient.getInstance().getSoundManager().play(
-                            new PositionedSoundInstance(
+                    Minecraft.getInstance().getSoundManager().play(
+                            new SimpleSoundInstance(
                                     Sounds.MURK_VANISH,
-                                    SoundCategory.PLAYERS,
+                                    SoundSource.PLAYERS,
                                     1.0f, // Volume
                                     1.0f, // Pitch
-                                    SoundInstance.createRandom(),
+                                    SoundInstance.createUnseededRandom(),
                                     player.getX(),
                                     player.getY(),
                                     player.getZ()

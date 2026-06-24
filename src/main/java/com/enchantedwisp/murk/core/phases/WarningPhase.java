@@ -3,36 +3,35 @@ package com.enchantedwisp.murk.core.phases;
 import com.enchantedwisp.murk.core.PhaseHandler;
 import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.util.tracker.PlayerLightTracker;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 
 public class WarningPhase implements PhaseHandler {
     private static final Map<UUID, Integer> warningAnimationFrame = new HashMap<>();
     private static final Map<UUID, Integer> warningAnimationTickCounter = new HashMap<>();
 
     @Override
-    public void onEnter(ServerPlayerEntity player) {
-        if (ConfigCache.isWarningTextEnabled() && !PlayerLightTracker.isWarned(player.getUuid())) {
-            PlayerLightTracker.setWarned(player.getUuid(), true);
-            startWarningAnimation(player.getUuid());
+    public void onEnter(ServerPlayer player) {
+        if (ConfigCache.isWarningTextEnabled() && !PlayerLightTracker.isWarned(player.getUUID())) {
+            PlayerLightTracker.setWarned(player.getUUID(), true);
+            startWarningAnimation(player.getUUID());
         }
     }
 
     @Override
-    public void onExit(ServerPlayerEntity player) {
+    public void onExit(ServerPlayer player) {
         // Stop animation if interrupted (e.g., light up mid-warning)
-        clearWarningAnimation(player.getUuid());
+        clearWarningAnimation(player.getUUID());
     }
 
     @Override
-    public void tick(ServerPlayerEntity player, ServerWorld world) {
-        PlayerLightTracker.incrementLowLightTicks(player.getUuid());
-        advanceWarningAnimation(player.getUuid(), player);
+    public void tick(ServerPlayer player, ServerLevel world) {
+        PlayerLightTracker.incrementLowLightTicks(player.getUUID());
+        advanceWarningAnimation(player.getUUID(), player);
     }
 
     public static void startWarningAnimation(UUID id) {
@@ -40,7 +39,7 @@ public class WarningPhase implements PhaseHandler {
         warningAnimationTickCounter.put(id, 0);
     }
 
-    public static void advanceWarningAnimation(UUID id, ServerPlayerEntity player) {
+    public static void advanceWarningAnimation(UUID id, ServerPlayer player) {
         Integer frame = warningAnimationFrame.get(id);
         if (frame == null || frame >= 28) {
             return;
@@ -66,7 +65,7 @@ public class WarningPhase implements PhaseHandler {
                 }
             }
 
-            player.sendMessageToClient(Text.literal(sb.toString()).styled(s -> s.withColor(0xFF5555)), true);
+            player.sendSystemMessage(Component.literal(sb.toString()).withStyle(s -> s.withColor(0xFF5555)), true);
 
             int newFrame = frame + 1;
             warningAnimationFrame.put(id, newFrame);
