@@ -63,7 +63,7 @@ public class LightLevelMonitor {
     private static boolean isValidEnvironment(ServerPlayerEntity player, ServerWorld world) {
         // Biome check
         Identifier biomeId = world.getRegistryManager()
-                .get(RegistryKeys.BIOME)
+                .getOrThrow(RegistryKeys.BIOME)
                 .getId(world.getBiome(player.getBlockPos()).value());
         boolean biomeValid;
         if (ConfigCache.useBiomeWhitelist()) {
