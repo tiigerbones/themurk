@@ -104,7 +104,7 @@ public class LightLevelEvaluator {
      */
     private static int getDroppedItemLightLevel(ServerPlayerEntity player) {
         int maxLightLevel = 0;
-        ServerWorld world = player.getServerWorld();
+        ServerWorld world = player.getWorld();
         double radius = ConfigCache.getDroppedItemRadius();
         Box box = new Box(
                 player.getX() - radius, player.getY() - radius, player.getZ() - radius,
@@ -144,7 +144,7 @@ public class LightLevelEvaluator {
      */
     private static int getNearbyPlayerLightLevel(ServerPlayerEntity player) {
         int maxLightLevel = 0;
-        ServerWorld world = player.getServerWorld();
+        ServerWorld world = player.getWorld();
         double radius = ConfigCache.getNearbyPlayerRadius();
         Box box = new Box(
                 player.getX() - radius, player.getY() - radius, player.getZ() - radius,
