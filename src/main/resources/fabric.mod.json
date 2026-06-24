@@ -30,14 +30,14 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.19.3",
-		"minecraft": "~1.21.4",
+		"minecraft": "~1.21.11",
 		"java": ">=21",
 		"fabric-api": "*",
-		"cloth-config": ">=17.0.144"
+		"cloth-config": ">=21.11.153"
 	},
 	"suggests": {
-		"lambdynlights": ">=4.8.10+1.21.1",
-		"trinkets": ">=3.10.0",
-		"modmenu": ">=13.0.4"
+		"lambdynlights": ">=4.9.1+1.21.11",
+		"trinkets-canary": ">=3.11.1-1.21.11",
+		"modmenu": ">=17.0.0"
 	}
 }
