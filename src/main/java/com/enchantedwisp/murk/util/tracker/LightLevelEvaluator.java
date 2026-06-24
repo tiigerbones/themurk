@@ -36,7 +36,7 @@ public class LightLevelEvaluator {
      * Calculates the effective light level for a player.
      */
     public static int getEffectiveLightLevel(ServerPlayerEntity player) {
-        int blockLight = player.getWorld().getLightLevel(player.getBlockPos());
+        int blockLight = player.getEntityWorld().getLightLevel(player.getBlockPos());
         int itemLight = ConfigCache.isDynamicLightSupportEnabled()
                 ? LightLevelEvaluator.getPlayerItemLightLevel(player)
                 : 0;
@@ -104,7 +104,7 @@ public class LightLevelEvaluator {
      */
     private static int getDroppedItemLightLevel(ServerPlayerEntity player) {
         int maxLightLevel = 0;
-        ServerWorld world = player.getWorld();
+        ServerWorld world = player.getEntityWorld();
         double radius = ConfigCache.getDroppedItemRadius();
         Box box = new Box(
                 player.getX() - radius, player.getY() - radius, player.getZ() - radius,
@@ -125,7 +125,7 @@ public class LightLevelEvaluator {
                         continue;
                     }
                     // Check line of sight with transparency
-                    Vec3d itemPos = itemEntity.getPos().add(0, 0.5, 0); // Center of item entity
+                    Vec3d itemPos = new Vec3d(itemEntity.getX(), itemEntity.getY() + 0.5, itemEntity.getZ()); // Center of item entity
                     if (!RaycastUtil.hasLineOfSight(world, player, playerEyePos, itemPos)) {
                         continue;
                     }
@@ -144,7 +144,7 @@ public class LightLevelEvaluator {
      */
     private static int getNearbyPlayerLightLevel(ServerPlayerEntity player) {
         int maxLightLevel = 0;
-        ServerWorld world = player.getWorld();
+        ServerWorld world = player.getEntityWorld();
         double radius = ConfigCache.getNearbyPlayerRadius();
         Box box = new Box(
                 player.getX() - radius, player.getY() - radius, player.getZ() - radius,

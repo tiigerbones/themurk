@@ -12,7 +12,7 @@ public class PhaseSoundManager {
     private static final Map<UUID, PhaseSoundInstance> activeSounds = new HashMap<>();
 
     public static void startSound(PlayerEntity player) {
-        if (player == null || !player.getWorld().isClient) return;
+        if (player == null || !player.getEntityWorld().isClient()) return;
 
         UUID playerId = player.getUuid();
         // Only start a new sound if none exists for this player

@@ -22,7 +22,7 @@ public class LightLevelMonitor {
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                ServerWorld world = player.getWorld();
+                ServerWorld world = player.getEntityWorld();
                 UUID id = player.getUuid();
 
                 // Always clear flags if effect expired (runs regardless of env)
