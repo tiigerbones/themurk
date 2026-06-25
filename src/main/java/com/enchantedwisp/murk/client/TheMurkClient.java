@@ -26,6 +26,9 @@ public class TheMurkClient implements ClientModInitializer {
     public void onInitializeClient() {
         LOGGER.info("Initializing The Murk client");
 
+        // Register Music Handler Client
+        DangerMusicHandler.register();
+
         // Register client tick event for tick-based logic only (sounds, vanish sound, effect tracking)
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             ScreenEffectManager.tick();

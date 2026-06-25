@@ -1,6 +1,7 @@
 package com.enchantedwisp.murk.core;
 
 import com.enchantedwisp.murk.TheMurk;
+import com.enchantedwisp.murk.network.DangerMusicNetworking;
 import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.core.phases.*;
 import com.enchantedwisp.murk.registry.Effects;
@@ -34,6 +35,13 @@ public class PhaseManager {
             handlers.get(current).onExit(player);
             handlers.get(next).onEnter(player);
             playerPhases.put(id, next);
+
+            if (next == Phases.WARNING || next == Phases.GRASPED || next == Phases.RECOVERY) {
+                DangerMusicNetworking.sendMusicSuppression(player, true);
+            } else if (next == Phases.SAFE) {
+                DangerMusicNetworking.sendMusicSuppression(player, false);
+            }
+
             TheMurk.LOGGER.debug("Phase transition for {}: {} -> {} (light={}, hasGrasp={})",
                     player.getName().getString(), current, next, lightLevel, player.hasStatusEffect(Effects.MURKS_GRASP));
         }
