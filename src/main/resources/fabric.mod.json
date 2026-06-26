@@ -29,16 +29,15 @@
 		"murk.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.16.14",
-		"minecraft": "~1.20.1",
-		"java": ">=17",
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25",
 		"fabric-api": "*",
-		"cloth-config": ">=11.1.136"
+		"cloth-config": ">=26.2.155"
 	},
 	"suggests": {
-		"lambdynlights": ">=4.1.4+1.20.1",
-		"trinkets": ">=3.7.2",
-		"sodiumdynamiclights": ">=1.0.9",
-		"modmenu": ">=7.2.2"
+		"lambdynlights": ">=4.12.2+26.2",
+		"trinkets-updated": ">=4.1.0-beta.2+26.2",
+		"modmenu": ">=20.0.0-beta.4"
 	}
 }

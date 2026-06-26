@@ -1,10 +1,10 @@
 package com.enchantedwisp.murk.core;
 
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 
 public interface PhaseHandler {
-    void onEnter(ServerPlayerEntity player);
-    void onExit(ServerPlayerEntity player);
-    void tick(ServerPlayerEntity player, ServerWorld world);
+    void onEnter(ServerPlayer player);
+    void onExit(ServerPlayer player);
+    void tick(ServerPlayer player, ServerLevel world);
 }

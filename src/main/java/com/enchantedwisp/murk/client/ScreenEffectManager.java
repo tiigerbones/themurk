@@ -9,8 +9,8 @@ public class ScreenEffectManager {
     private static ScreenShakeInstance activeShake = null;
 
     public static void applyScreenShake(float intensity, int durationTicks) {
-        intensity = Math.max(0.0f, Math.min(2.0f, intensity));
-        durationTicks = Math.max(1, Math.min(100, durationTicks));
+        intensity = Math.clamp(intensity, 0.0f, 2.0f);
+        durationTicks = Math.clamp(durationTicks, 1, 100);
         activeShake = new ScreenShakeInstance(intensity, durationTicks);
     }
 

@@ -1,20 +1,20 @@
 package com.enchantedwisp.murk.registry;
 
 import com.enchantedwisp.murk.effect.MurkGraspEffect;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffect;
 
 public class Effects {
-    public static final String EFFECT_ID = "murks_grasp";
-    public static final StatusEffect MURKS_GRASP = new MurkGraspEffect();
+    public static Holder<MobEffect> MURKS_GRASP;
 
     public static void register() {
-        Registry.register(
-                Registries.STATUS_EFFECT,
-                Identifier.of("murk", EFFECT_ID),
-                MURKS_GRASP
+        MURKS_GRASP = Registry.registerForHolder(
+                BuiltInRegistries.MOB_EFFECT,
+                Identifier.fromNamespaceAndPath("murk", "murks_grasp"),
+                new MurkGraspEffect()
         );
     }
 }

@@ -2,19 +2,18 @@ package com.enchantedwisp.murk.util.tracker;
 
 import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.util.lighting.LightSource;
-import dev.emi.trinkets.api.TrinketComponent;
-import dev.emi.trinkets.api.TrinketsApi;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.List;
 import java.util.Optional;
+
+import eu.pb4.trinkets.api.TrinketsApi;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class LightLevelEvaluator {
     /**
@@ -24,7 +23,7 @@ public class LightLevelEvaluator {
     static {
         boolean loaded;
         try {
-            Class.forName("dev.emi.trinkets.api.TrinketsApi");
+            Class.forName("eu.pb4.trinkets.api.TrinketsApi");
             loaded = true;
         } catch (ClassNotFoundException e) {
             loaded = false;
@@ -35,8 +34,8 @@ public class LightLevelEvaluator {
     /**
      * Calculates the effective light level for a player.
      */
-    public static int getEffectiveLightLevel(ServerPlayerEntity player) {
-        int blockLight = player.getWorld().getLightLevel(player.getBlockPos());
+    public static int getEffectiveLightLevel(ServerPlayer player) {
+        int blockLight = player.level().getMaxLocalRawBrightness(player.blockPosition());
         int itemLight = ConfigCache.isDynamicLightSupportEnabled()
                 ? LightLevelEvaluator.getPlayerItemLightLevel(player)
                 : 0;
@@ -52,24 +51,24 @@ public class LightLevelEvaluator {
     /**
      * Calculates the light level from a player's held items or trinkets.
      */
-    public static int getPlayerItemLightLevel(PlayerEntity player) {
+    public static int getPlayerItemLightLevel(Player player) {
         if (!ConfigCache.isDynamicLightSupportEnabled()) {
             return 0;
         }
 
-        if (!ConfigCache.isUnderwaterLightCheckEnabled() && player.isSubmergedInWater()) {
+        if (!ConfigCache.isUnderwaterLightCheckEnabled() && player.isUnderWater()) {
             return 0;
         }
 
         int maxLightLevel = 0;
 
         // Check main and off-hand
-        for (ItemStack stack : new ItemStack[]{player.getMainHandStack(), player.getOffHandStack()}) {
+        for (ItemStack stack : new ItemStack[]{player.getMainHandItem(), player.getOffhandItem()}) {
             if (!stack.isEmpty()) {
-                String itemId = Registries.ITEM.getId(stack.getItem()).toString();
+                String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
                 LightSource entry = LightSource.getLightSources().get(itemId);
                 if (entry != null) {
-                    if (entry.waterSensitive && player.isSubmergedInWater()) {
+                    if (entry.waterSensitive && player.isUnderWater()) {
                         continue;
                     }
                     maxLightLevel = Math.max(maxLightLevel, entry.luminance);
@@ -79,21 +78,34 @@ public class LightLevelEvaluator {
 
         // Check trinkets
         if (TRINKETS_LOADED) {
-            Optional<TrinketComponent> trinketComponent = TrinketsApi.getTrinketComponent(player);
-            if (trinketComponent.isPresent()) {
-                for (var group : trinketComponent.get().getAllEquipped()) {
-                    ItemStack stack = group.getRight();
+            var attachment = TrinketsApi.getAttachment(player);
+
+            if (attachment != null) {
+                int[] maxTrinketLight = {maxLightLevel};
+
+                attachment.forEach((slotAccess, stack) -> {
                     if (!stack.isEmpty()) {
-                        String itemId = Registries.ITEM.getId(stack.getItem()).toString();
-                        LightSource entry = LightSource.getLightSources().get(itemId);
+                        String itemId = BuiltInRegistries.ITEM
+                                .getKey(stack.getItem())
+                                .toString();
+
+                        LightSource entry =
+                                LightSource.getLightSources().get(itemId);
+
                         if (entry != null) {
-                            if (entry.waterSensitive && player.isSubmergedInWater()) {
-                                continue;
+                            if (entry.waterSensitive && player.isUnderWater()) {
+                                return;
                             }
-                            maxLightLevel = Math.max(maxLightLevel, entry.luminance);
+
+                            maxTrinketLight[0] = Math.max(
+                                    maxTrinketLight[0],
+                                    entry.luminance
+                            );
                         }
                     }
-                }
+                });
+
+                maxLightLevel = maxTrinketLight[0];
             }
         }
         return maxLightLevel;
@@ -102,30 +114,30 @@ public class LightLevelEvaluator {
     /**
      * Calculates the light level from dropped items within the configured radius.
      */
-    private static int getDroppedItemLightLevel(ServerPlayerEntity player) {
+    private static int getDroppedItemLightLevel(ServerPlayer player) {
         int maxLightLevel = 0;
-        ServerWorld world = player.getServerWorld();
+        ServerLevel world = player.level();
         double radius = ConfigCache.getDroppedItemRadius();
-        Box box = new Box(
+        AABB box = new AABB(
                 player.getX() - radius, player.getY() - radius, player.getZ() - radius,
                 player.getX() + radius, player.getY() + radius, player.getZ() + radius
         );
 
-        List<ItemEntity> droppedItems = world.getEntitiesByClass(ItemEntity.class, box, entity -> true);
-        Vec3d playerEyePos = player.getEyePos();
+        List<ItemEntity> droppedItems = world.getEntitiesOfClass(ItemEntity.class, box, entity -> true);
+        Vec3 playerEyePos = player.getEyePosition();
 
         for (ItemEntity itemEntity : droppedItems) {
-            ItemStack stack = itemEntity.getStack();
+            ItemStack stack = itemEntity.getItem();
             if (!stack.isEmpty()) {
-                String itemId = Registries.ITEM.getId(stack.getItem()).toString();
+                String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
                 LightSource entry = LightSource.getLightSources().get(itemId);
                 if (entry != null) {
                     // Skip if water-sensitive and item is underwater
-                    if (entry.waterSensitive && itemEntity.isSubmergedInWater()) {
+                    if (entry.waterSensitive && itemEntity.isUnderWater()) {
                         continue;
                     }
                     // Check line of sight with transparency
-                    Vec3d itemPos = itemEntity.getPos().add(0, 0.5, 0); // Center of item entity
+                    Vec3 itemPos = new Vec3(itemEntity.getX(), itemEntity.getY() + 0.5, itemEntity.getZ()); // Center of item entity
                     if (!RaycastUtil.hasLineOfSight(world, player, playerEyePos, itemPos)) {
                         continue;
                     }
@@ -142,24 +154,24 @@ public class LightLevelEvaluator {
     /**
      * Calculates the light level from nearby players within the configured radius.
      */
-    private static int getNearbyPlayerLightLevel(ServerPlayerEntity player) {
+    private static int getNearbyPlayerLightLevel(ServerPlayer player) {
         int maxLightLevel = 0;
-        ServerWorld world = player.getServerWorld();
+        ServerLevel world = player.level();
         double radius = ConfigCache.getNearbyPlayerRadius();
-        Box box = new Box(
+        AABB box = new AABB(
                 player.getX() - radius, player.getY() - radius, player.getZ() - radius,
                 player.getX() + radius, player.getY() + radius, player.getZ() + radius
         );
 
-        List<ServerPlayerEntity> nearbyPlayers = world.getEntitiesByClass(ServerPlayerEntity.class, box,
+        List<ServerPlayer> nearbyPlayers = world.getEntitiesOfClass(ServerPlayer.class, box,
                 nearbyPlayer -> nearbyPlayer != player && !nearbyPlayer.isSpectator());
-        Vec3d playerEyePos = player.getEyePos();
+        Vec3 playerEyePos = player.getEyePosition();
 
-        for (ServerPlayerEntity nearbyPlayer : nearbyPlayers) {
+        for (ServerPlayer nearbyPlayer : nearbyPlayers) {
             int lightLevel = getPlayerItemLightLevel(nearbyPlayer);
             if (lightLevel > 0) {
                 // Check line of sight with transparency
-                Vec3d nearbyPlayerEyePos = nearbyPlayer.getEyePos();
+                Vec3 nearbyPlayerEyePos = nearbyPlayer.getEyePosition();
                 if (!RaycastUtil.hasLineOfSight(world, player, playerEyePos, nearbyPlayerEyePos)) {
                     continue;
                 }

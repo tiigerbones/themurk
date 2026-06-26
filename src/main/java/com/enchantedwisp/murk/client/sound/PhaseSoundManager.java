@@ -1,40 +1,39 @@
 package com.enchantedwisp.murk.client.sound;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.SoundManager;
-import net.minecraft.entity.player.PlayerEntity;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.world.entity.player.Player;
 
 public class PhaseSoundManager {
     private static final Map<UUID, PhaseSoundInstance> activeSounds = new HashMap<>();
 
-    public static void startSound(PlayerEntity player) {
-        if (player == null || !player.getWorld().isClient) return;
+    public static void startSound(Player player) {
+        if (player == null || !player.level().isClientSide()) return;
 
-        UUID playerId = player.getUuid();
+        UUID playerId = player.getUUID();
         // Only start a new sound if none exists for this player
         if (!activeSounds.containsKey(playerId)) {
             PhaseSoundInstance sound = new PhaseSoundInstance(player);
             activeSounds.put(playerId, sound);
-            MinecraftClient.getInstance().getSoundManager().play(sound);
+            Minecraft.getInstance().getSoundManager().play(sound);
         }
     }
 
-    public static void stopSound(PlayerEntity player) {
+    public static void stopSound(Player player) {
         if (player == null) return;
 
-        UUID playerId = player.getUuid();
+        UUID playerId = player.getUUID();
         PhaseSoundInstance sound = activeSounds.remove(playerId);
         if (sound != null) {
-            MinecraftClient.getInstance().getSoundManager().stop(sound);
+            Minecraft.getInstance().getSoundManager().stop(sound);
         }
     }
 
     public static void stopAllSounds() {
-        SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
+        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
         for (PhaseSoundInstance sound : activeSounds.values()) {
             soundManager.stop(sound);
         }
