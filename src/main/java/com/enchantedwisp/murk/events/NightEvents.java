@@ -8,7 +8,7 @@ import net.minecraft.client.sound.SoundInstance;
 
 public class NightEvents {
 
-    private static final float VOLUME = 0.7f;
+    private static final float VOLUME = 0.90f;
 
     private static SoundInstance currentMusic;
     private static boolean wasNight = false;
@@ -24,7 +24,6 @@ public class NightEvents {
                 return;
             }
 
-            // Respect config toggle
             if (!ConfigCache.isMurkyNightMusicEnabled()) {
                 return;
             }
@@ -32,7 +31,6 @@ public class NightEvents {
             long time = client.world.getTimeOfDay() % 24000;
             boolean isNight = time >= 13000 && time < 23000;
 
-            // === Night just started ===
             if (isNight && !wasNight) {
                 wasNight = true;
 
@@ -51,8 +49,7 @@ public class NightEvents {
                     client.getSoundManager().play(currentMusic);
                 }
             }
-
-            // === Replay if the sound finishes during the night ===
+            // Keep Audio Looping
             if (isNight && playTonight &&
                     currentMusic != null &&
                     !client.getSoundManager().isPlaying(currentMusic)) {
@@ -65,7 +62,6 @@ public class NightEvents {
                 client.getSoundManager().play(currentMusic);
             }
 
-            // === Day started - cleanup ===
             if (!isNight && wasNight) {
                 wasNight = false;
                 playTonight = false;
