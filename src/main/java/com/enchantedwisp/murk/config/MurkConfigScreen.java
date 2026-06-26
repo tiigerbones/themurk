@@ -57,6 +57,14 @@ public class MurkConfigScreen {
                 .setSaveConsumer(value -> config.general_suppressMusicInDanger = value)
                 .build());
 
+        general.addEntry(entryBuilder.startBooleanToggle(
+                        Text.literal("Enable Murky Night Music"),
+                        config.general_enableMurkyNightMusic)
+                .setTooltip(Text.of("Allow the custom Murk night ambience to play at night with a chance."))
+                .setDefaultValue(true)
+                .setSaveConsumer(value -> config.general_enableMurkyNightMusic = value)
+                .build());
+
         general.addEntry(entryBuilder.startDoubleField(
                         Text.literal("Warning Delay (seconds)"),
                         config.general_warningMessageDelay)

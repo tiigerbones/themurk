@@ -2,6 +2,7 @@ package com.enchantedwisp.murk;
 
 import com.enchantedwisp.murk.client.DangerMusicHandler;
 import com.enchantedwisp.murk.config.MurkConfig;
+import com.enchantedwisp.murk.events.NightEvents;
 import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.registry.Sounds;
 import com.enchantedwisp.murk.util.ConfigCache;

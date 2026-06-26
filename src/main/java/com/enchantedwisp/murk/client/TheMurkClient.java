@@ -2,6 +2,7 @@ package com.enchantedwisp.murk.client;
 
 import com.enchantedwisp.murk.TheMurk;
 import com.enchantedwisp.murk.client.sound.PhaseSoundManager;
+import com.enchantedwisp.murk.events.NightEvents;
 import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.registry.Sounds;
 import net.fabricmc.api.ClientModInitializer;
@@ -28,6 +29,9 @@ public class TheMurkClient implements ClientModInitializer {
 
         // Register Music Handler Client
         DangerMusicHandler.register();
+
+        // Register Night Events
+        NightEvents.register();
 
         // Register client tick event for tick-based logic only (sounds, vanish sound, effect tracking)
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
