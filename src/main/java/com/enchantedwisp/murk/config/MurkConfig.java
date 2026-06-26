@@ -28,9 +28,6 @@ public class MurkConfig implements ConfigData {
     @Comment("If enabled, background music will pause/stop while in danger phases (Warning, Grasped, Recovery). Default: true")
     public boolean general_suppressMusicInDanger = true;
 
-    @Comment("Enable murky night ambience music (Murk's night track). Default: true")
-    public boolean general_enableMurkyNightMusic = true;
-
     @Comment("Time in seconds before the warning message appears in low light. Default: 5.0")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 60)
     public double general_warningMessageDelay = 5.0;
@@ -89,6 +86,7 @@ public class MurkConfig implements ConfigData {
             TheMurk.LOGGER.warn("Correcting general_lightThreshold: {} to {}. Must be between 0 and 15.", general_lightThreshold, Math.max(0, Math.min(15, general_lightThreshold)));
             general_lightThreshold = Math.max(0, Math.min(15, general_lightThreshold));
         }
+
         general_dimensions = general_dimensions.stream()
                 .filter(dim -> dim != null && !dim.trim().isEmpty())
                 .distinct()

@@ -22,7 +22,6 @@ public class ConfigCache {
     private static boolean enableUnderwaterLightCheck;
     private static boolean enableWarningText;
     private static boolean suppressMusicInDanger;
-    private static boolean enableMurkyNightMusic;
     private static boolean blindnessEnabled;
     private static boolean useBiomeWhitelist;
     private static boolean enableDynamicLightSupport;
@@ -61,7 +60,6 @@ public class ConfigCache {
         enableUnderwaterLightCheck = config.general_enableUnderwaterLightCheck;
         enableWarningText = config.general_enableWarningText;
         suppressMusicInDanger = config.general_suppressMusicInDanger;
-        enableMurkyNightMusic = config.general_enableMurkyNightMusic;
         blindnessEnabled = config.effect_blindnessEnabled;
         useBiomeWhitelist = config.general_useBiomeWhitelist;
         enableDynamicLightSupport = config.general_enableDynamicLightSupport;
@@ -105,10 +103,6 @@ public class ConfigCache {
 
     public static boolean isMusicSuppressionEnabled() {
         return suppressMusicInDanger;
-    }
-
-    public static boolean isMurkyNightMusicEnabled() {
-        return enableMurkyNightMusic;
     }
 
     public static boolean isBlindnessEnabled() {

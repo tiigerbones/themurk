@@ -69,10 +69,10 @@ public class LightLevelEvaluator {
                 String itemId = Registries.ITEM.getId(stack.getItem()).toString();
                 LightSource entry = LightSource.getLightSources().get(itemId);
                 if (entry != null) {
-                    if (entry.waterSensitive && player.isSubmergedInWater()) {
+                    if (entry.waterSensitive() && player.isSubmergedInWater()) {
                         continue;
                     }
-                    maxLightLevel = Math.max(maxLightLevel, entry.luminance);
+                    maxLightLevel = Math.max(maxLightLevel, entry.luminance());
                 }
             }
         }
@@ -87,10 +87,10 @@ public class LightLevelEvaluator {
                         String itemId = Registries.ITEM.getId(stack.getItem()).toString();
                         LightSource entry = LightSource.getLightSources().get(itemId);
                         if (entry != null) {
-                            if (entry.waterSensitive && player.isSubmergedInWater()) {
+                            if (entry.waterSensitive() && player.isSubmergedInWater()) {
                                 continue;
                             }
-                            maxLightLevel = Math.max(maxLightLevel, entry.luminance);
+                            maxLightLevel = Math.max(maxLightLevel, entry.luminance());
                         }
                     }
                 }
@@ -121,7 +121,7 @@ public class LightLevelEvaluator {
                 LightSource entry = LightSource.getLightSources().get(itemId);
                 if (entry != null) {
                     // Skip if water-sensitive and item is underwater
-                    if (entry.waterSensitive && itemEntity.isSubmergedInWater()) {
+                    if (entry.waterSensitive() && itemEntity.isSubmergedInWater()) {
                         continue;
                     }
                     // Check line of sight with transparency
@@ -129,8 +129,8 @@ public class LightLevelEvaluator {
                     if (!RaycastUtil.hasLineOfSight(world, player, playerEyePos, itemPos)) {
                         continue;
                     }
-                    if (entry.luminance > maxLightLevel) {
-                        maxLightLevel = entry.luminance;
+                    if (entry.luminance() > maxLightLevel) {
+                        maxLightLevel = entry.luminance();
                     }
                 }
             }

@@ -9,7 +9,6 @@ import net.minecraft.util.Identifier;
 public class Sounds {
     public static final SoundEvent MURK_WHISPERS = register("murk_whispers");
     public static final SoundEvent MURK_VANISH = register("murk_vanish");
-    public static final SoundEvent MURK_NIGHT_AMBIENCE1 = register("murk_night_ambience1");
 
     private static SoundEvent register(String id) {
         Identifier identifier = Identifier.of(TheMurk.MOD_ID, id);
