@@ -1,6 +1,6 @@
 # The Murk
 
-**The Murk** is a horror-themed Fabric mod for Minecraft 1.20.1 that transforms darkness into a deadly threat. Venture into the shadows unprepared, and face the chilling consequences of *Murk's Grasp*, a debuff that creeps up in low light levels, bringing fear and danger to your world.
+**The Murk** is a horror-themed Fabric mod that transforms darkness into a deadly threat. Venture into the shadows unprepared, and face the chilling consequences of *Murk's Grasp*, a debuff that creeps up in low light levels, bringing fear and danger to your world.
 
 ## Features
 
