@@ -1,36 +1,35 @@
 package com.enchantedwisp.murk.client.sound;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 
 public class PhaseSoundManager {
     private static final Map<UUID, PhaseSoundInstance> activeSounds = new HashMap<>();
 
-    public static void startSound(PlayerEntity player) {
-        if (player == null || !player.getWorld().isClient) {
+    public static void startSound(Player player) {
+        if (player == null || !player.level().isClientSide) {
             return;
         }
 
-        UUID id = player.getUuid();
+        UUID id = player.getUUID();
 
         PhaseSoundInstance existing = activeSounds.get(id);
 
-        if (existing == null || existing.isDone()) {
+        if (existing == null || existing.isStopped()) {
             PhaseSoundInstance sound = new PhaseSoundInstance(player);
             activeSounds.put(id, sound);
-            MinecraftClient.getInstance().getSoundManager().play(sound);
+            Minecraft.getInstance().getSoundManager().play(sound);
         }
     }
 
-    public static void stopSound(PlayerEntity player) {
+    public static void stopSound(Player player) {
         if (player == null) return;
 
-        PhaseSoundInstance sound = activeSounds.get(player.getUuid());
+        PhaseSoundInstance sound = activeSounds.get(player.getUUID());
 
         if (sound != null) {
             sound.beginFadeOut();
@@ -44,7 +43,7 @@ public class PhaseSoundManager {
         while (iterator.hasNext()) {
             Map.Entry<UUID, PhaseSoundInstance> entry = iterator.next();
 
-            if (entry.getValue().isDone()) {
+            if (entry.getValue().isStopped()) {
                 iterator.remove();
             }
         }

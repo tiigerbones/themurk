@@ -5,13 +5,12 @@ import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.core.phases.*;
 import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.util.tracker.PlayerLightTracker;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 
 public class PhaseManager {
     private static final Map<UUID, Phases> playerPhases = new HashMap<>();
@@ -25,8 +24,8 @@ public class PhaseManager {
         handlers.put(Phases.RECOVERY, new RecoveryPhase());
     }
 
-    public static void updatePlayer(ServerPlayerEntity player, ServerWorld world, int lightLevel) {
-        UUID id = player.getUuid();
+    public static void updatePlayer(ServerPlayer player, ServerLevel world, int lightLevel) {
+        UUID id = player.getUUID();
         Phases current = playerPhases.getOrDefault(id, Phases.SAFE);
         Phases next = determineNextPhase(player, lightLevel, current);
 
@@ -35,16 +34,16 @@ public class PhaseManager {
             handlers.get(next).onEnter(player);
             playerPhases.put(id, next);
             TheMurk.LOGGER.debug("Phase transition for {}: {} -> {} (light={}, hasGrasp={})",
-                    player.getName().getString(), current, next, lightLevel, player.hasStatusEffect(Effects.MURKS_GRASP));
+                    player.getName().getString(), current, next, lightLevel, player.hasEffect(Effects.MURKS_GRASP));
         }
 
         handlers.get(next).tick(player, world);
     }
 
-    private static Phases determineNextPhase(ServerPlayerEntity player, int lightLevel, Phases current) {
-        boolean hasGrasp = player.hasStatusEffect(Effects.MURKS_GRASP);
+    private static Phases determineNextPhase(ServerPlayer player, int lightLevel, Phases current) {
+        boolean hasGrasp = player.hasEffect(Effects.MURKS_GRASP);
         boolean isLit = lightLevel >= ConfigCache.getLightThreshold();
-        UUID id = player.getUuid();
+        UUID id = player.getUUID();
 
         if (hasGrasp) {
             if (isLit) {

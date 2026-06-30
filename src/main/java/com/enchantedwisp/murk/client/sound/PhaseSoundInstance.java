@@ -1,29 +1,29 @@
 package com.enchantedwisp.murk.client.sound;
 
 import com.enchantedwisp.murk.registry.Sounds;
-import net.minecraft.client.sound.MovingSoundInstance;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.sound.SoundCategory;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
 
-public class PhaseSoundInstance extends MovingSoundInstance {
+public class PhaseSoundInstance extends AbstractTickableSoundInstance {
 
     private static final int FADE_IN_TICKS = 40;   // 2 seconds
     private static final int FADE_OUT_TICKS = 20;  // 1 second
     private static final float MAX_VOLUME = 1.0F;
 
-    private final PlayerEntity player;
+    private final Player player;
 
     private int fadeTimer = 0;
     private boolean fadingOut = false;
 
-    public PhaseSoundInstance(PlayerEntity player) {
+    public PhaseSoundInstance(Player player) {
         super(Sounds.MURK_WHISPERS,
-                SoundCategory.PLAYERS,
-                SoundInstance.createRandom());
+                SoundSource.PLAYERS,
+                SoundInstance.createUnseededRandom());
         this.player = player;
-        this.repeat = true;
-        this.repeatDelay = 0;
+        this.looping = true;
+        this.delay = 0;
         this.volume = 1.0f;
         this.pitch = 1.0f;
         this.x = player.getX();
@@ -39,7 +39,7 @@ public class PhaseSoundInstance extends MovingSoundInstance {
     }
 
     public void stopImmediately() {
-        setDone();
+        stop();
     }
 
     public boolean isFadingOut() {
@@ -69,7 +69,7 @@ public class PhaseSoundInstance extends MovingSoundInstance {
             }
 
             if (fadeTimer >= FADE_OUT_TICKS) {
-                this.setDone();
+                this.stop();
             }
 
             return;

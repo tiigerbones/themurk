@@ -5,10 +5,10 @@ import com.enchantedwisp.murk.core.PhaseManager;
 import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.util.ConfigCache;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +21,12 @@ public class LightLevelMonitor {
         LOGGER.info("Registering LightLevelMonitor");
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                ServerWorld world = player.getServerWorld();
-                UUID id = player.getUuid();
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                ServerLevel world = player.serverLevel();
+                UUID id = player.getUUID();
 
                 // Always clear flags if effect expired (runs regardless of env)
-                if (!player.hasStatusEffect(Effects.MURKS_GRASP)) {
+                if (!player.hasEffect(Effects.MURKS_GRASP)) {
                     PlayerLightTracker.clearDurationReduced(id);
                     PlayerLightTracker.clearEffectTicks(id);
                 }
@@ -34,7 +34,7 @@ public class LightLevelMonitor {
                 // Unified invalid env check (biome, dimension, creative, underwater)
                 boolean isValidEnv = isValidEnvironment(player, world);
                 if (!isValidEnv) {
-                    boolean hasGrasp = player.hasStatusEffect(Effects.MURKS_GRASP);
+                    boolean hasGrasp = player.hasEffect(Effects.MURKS_GRASP);
                     if (!hasGrasp) {
                         // Invalid env + no effect: Reset and skip (SAFE default)
                         PlayerLightTracker.reset(id);
@@ -60,11 +60,11 @@ public class LightLevelMonitor {
      * Checks if the player's environment is valid for Murk effects.
      * Invalid: Black/whitelisted biome, disallowed dimension, creative (disabled), underwater (disabled).
      */
-    private static boolean isValidEnvironment(ServerPlayerEntity player, ServerWorld world) {
+    private static boolean isValidEnvironment(ServerPlayer player, ServerLevel world) {
         // Biome check
-        Identifier biomeId = world.getRegistryManager()
-                .get(RegistryKeys.BIOME)
-                .getId(world.getBiome(player.getBlockPos()).value());
+        ResourceLocation biomeId = world.registryAccess()
+                .registryOrThrow(Registries.BIOME)
+                .getKey(world.getBiome(player.blockPosition()).value());
         boolean biomeValid;
         if (ConfigCache.useBiomeWhitelist()) {
             biomeValid = biomeId != null && ConfigCache.getBiomeWhitelist().contains(biomeId.toString());
@@ -77,7 +77,7 @@ public class LightLevelMonitor {
         if (!biomeValid) return false;
 
         // Dimension check
-        String dimStr = world.getRegistryKey().getValue().toString();
+        String dimStr = world.dimension().location().toString();
         if (!ConfigCache.getAllowedDimensions().contains(dimStr)) {
             LOGGER.debug("Invalid dimension {} for player {}", dimStr, player.getName().getString());
             return false;
@@ -90,7 +90,7 @@ public class LightLevelMonitor {
         }
 
         // Underwater check
-        if (!ConfigCache.isUnderwaterLightCheckEnabled() && player.isSubmergedInWater()) {
+        if (!ConfigCache.isUnderwaterLightCheckEnabled() && player.isUnderWater()) {
             LOGGER.debug("Underwater check disabled for player {}", player.getName().getString());
             return false;
         }

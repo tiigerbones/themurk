@@ -1,16 +1,16 @@
 package com.enchantedwisp.murk.registry;
 
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageType;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.level.Level;
 
 public class DamageTypes {
-    public static final RegistryKey<DamageType> MURKS_GRASP_DAMAGE = RegistryKey.of(
-            RegistryKeys.DAMAGE_TYPE,
-            Identifier.of("murk", "murks_grasp_damage")
+    public static final ResourceKey<DamageType> MURKS_GRASP_DAMAGE = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            ResourceLocation.tryBuild("murk", "murks_grasp_damage")
     );
 
     public static void register() {
@@ -18,9 +18,9 @@ public class DamageTypes {
     }
 
     // Helper method to create DamageSource
-    public static DamageSource of(World world) {
+    public static DamageSource of(Level world) {
         return new DamageSource(
-                world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(MURKS_GRASP_DAMAGE)
+                world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(MURKS_GRASP_DAMAGE)
         );
     }
 }
