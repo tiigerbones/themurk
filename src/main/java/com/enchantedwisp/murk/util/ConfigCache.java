@@ -59,7 +59,6 @@ public class ConfigCache {
         enableCreativeEffect = config.general_affectCreativePlayers;
         enableUnderwaterLightCheck = config.general_enableUnderwaterLightCheck;
         enableWarningText = config.general_enableWarningText;
-        suppressMusicInDanger = config.general_suppressMusicInDanger;
         blindnessEnabled = config.effect_blindnessEnabled;
         useBiomeWhitelist = config.general_useBiomeWhitelist;
         enableDynamicLightSupport = config.general_enableDynamicLightSupport;
@@ -99,10 +98,6 @@ public class ConfigCache {
 
     public static boolean isWarningTextEnabled() {
         return enableWarningText;
-    }
-
-    public static boolean isMusicSuppressionEnabled() {
-        return suppressMusicInDanger;
     }
 
     public static boolean isBlindnessEnabled() {
