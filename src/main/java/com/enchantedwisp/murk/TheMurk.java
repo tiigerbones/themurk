@@ -1,6 +1,5 @@
 package com.enchantedwisp.murk;
 
-import com.enchantedwisp.murk.client.DangerMusicHandler;
 import com.enchantedwisp.murk.config.MurkConfig;
 import com.enchantedwisp.murk.registry.Effects;
 import com.enchantedwisp.murk.registry.Sounds;
@@ -48,9 +47,6 @@ public class TheMurk implements ModInitializer {
 
 		// Register light level monitor
 		LightLevelMonitor.register();
-
-		// Register Music Handler
-		DangerMusicHandler.register();
 	}
 
 	public static MurkConfig getConfig() {

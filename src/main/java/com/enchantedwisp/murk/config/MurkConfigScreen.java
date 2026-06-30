@@ -49,14 +49,6 @@ public class MurkConfigScreen {
                 .setSaveConsumer(value -> config.general_enableWarningText = value)
                 .build());
 
-        general.addEntry(entryBuilder.startBooleanToggle(
-                        Text.literal("Suppress Music in Danger"),
-                        config.general_suppressMusicInDanger)
-                .setTooltip(Text.of("Pause or stop background music while in Warning, Grasped, or Recovery phases."))
-                .setDefaultValue(true)
-                .setSaveConsumer(value -> config.general_suppressMusicInDanger = value)
-                .build());
-
         general.addEntry(entryBuilder.startDoubleField(
                         Text.literal("Warning Delay (seconds)"),
                         config.general_warningMessageDelay)
