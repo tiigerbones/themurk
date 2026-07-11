@@ -3,9 +3,9 @@ package com.enchantedwisp.murk.util.lighting;
 import com.enchantedwisp.murk.TheMurk;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Jankson;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.JsonObject;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,22 +15,15 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-@SuppressWarnings("deprecation")
-public class LightSourceLoader implements SimpleSynchronousResourceReloadListener {
+public class LightSourceLoader implements SynchronousResourceReloader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TheMurk.MOD_ID + "_dynamic_lighting");
-
-    @Override
-    public Identifier getFabricId() {
-        return Identifier.of(TheMurk.MOD_ID, "dynamic_light_loader");
-    }
 
     @Override
     public void reload(ResourceManager manager) {
         Map<String, LightSource> lightSources = LightSource.getLightSources();
         lightSources.clear();
 
-        // listResources was removed in 1.21 — use findResources instead
         Map<Identifier, Resource> resources = manager.findResources(
                 "valid_lights",
                 id -> id.getNamespace().equals(TheMurk.MOD_ID) && id.getPath().endsWith(".json")
