@@ -1,23 +1,28 @@
 package com.enchantedwisp.murk.client.sound;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.world.entity.player.Player;
 
 public class PhaseSoundManager {
     private static final Map<UUID, PhaseSoundInstance> activeSounds = new HashMap<>();
 
     public static void startSound(Player player) {
-        if (player == null || !player.level().isClientSide()) return;
+        if (player == null || !player.level().isClientSide()) {
+            return;
+        }
 
-        UUID playerId = player.getUUID();
-        // Only start a new sound if none exists for this player
-        if (!activeSounds.containsKey(playerId)) {
+        UUID id = player.getUUID();
+
+        PhaseSoundInstance existing = activeSounds.get(id);
+
+        if (existing == null || existing.isStopped()) {
             PhaseSoundInstance sound = new PhaseSoundInstance(player);
-            activeSounds.put(playerId, sound);
+            activeSounds.put(id, sound);
             Minecraft.getInstance().getSoundManager().play(sound);
         }
     }
@@ -25,17 +30,29 @@ public class PhaseSoundManager {
     public static void stopSound(Player player) {
         if (player == null) return;
 
-        UUID playerId = player.getUUID();
-        PhaseSoundInstance sound = activeSounds.remove(playerId);
+        PhaseSoundInstance sound = activeSounds.get(player.getUUID());
+
         if (sound != null) {
-            Minecraft.getInstance().getSoundManager().stop(sound);
+            sound.beginFadeOut();
+        }
+    }
+
+    public static void tick() {
+
+        Iterator<Map.Entry<UUID, PhaseSoundInstance>> iterator = activeSounds.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, PhaseSoundInstance> entry = iterator.next();
+
+            if (entry.getValue().isStopped()) {
+                iterator.remove();
+            }
         }
     }
 
     public static void stopAllSounds() {
-        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
         for (PhaseSoundInstance sound : activeSounds.values()) {
-            soundManager.stop(sound);
+            sound.stopImmediately();
         }
         activeSounds.clear();
     }

@@ -2,9 +2,6 @@ package com.enchantedwisp.murk.util.tracker;
 
 import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.util.lighting.LightSource;
-import java.util.List;
-import java.util.Optional;
-
 import eu.pb4.trinkets.api.TrinketsApi;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -14,6 +11,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 public class LightLevelEvaluator {
     /**

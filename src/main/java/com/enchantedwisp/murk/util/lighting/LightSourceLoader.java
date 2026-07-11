@@ -1,14 +1,12 @@
 package com.enchantedwisp.murk.util.lighting;
 
 import com.enchantedwisp.murk.TheMurk;
-import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.*;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.core.registries.BuiltInRegistries;
+import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Jankson;
+import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.JsonObject;
+import net.fabricmc.fabric.api.resource.v1.reloader.SimpleReloadListener;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,159 +14,89 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Objects;
 
-public class LightSourceLoader implements SimpleSynchronousResourceReloadListener {
+public class LightSourceLoader extends SimpleReloadListener<Void> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TheMurk.MOD_ID + "_dynamic_lighting");
 
     @Override
-    public Identifier getFabricId() {
-        return Identifier.fromNamespaceAndPath(TheMurk.MOD_ID, "dynamic_light_loader");
+    protected Void prepare(SharedState state) {
+        // We keep loading synchronous and simple, so we do the work in apply()
+        return null;
     }
 
     @Override
-    public void onResourceManagerReload(ResourceManager manager) {
+    protected void apply(Void prepared, SharedState state) {
+        ResourceManager manager = state.resourceManager();
+
         Map<String, LightSource> lightSources = LightSource.getLightSources();
         lightSources.clear();
-        String path = "assets/" + TheMurk.MOD_ID + "/dynamiclights/item/";
 
-        Map<Identifier, net.minecraft.server.packs.resources.Resource> resources = manager.listResources(
-                "dynamiclights/item",
+        Map<Identifier, Resource> resources = manager.listResources(
+                "valid_lights",
                 id -> id.getNamespace().equals(TheMurk.MOD_ID) && id.getPath().endsWith(".json")
         );
 
         if (resources.isEmpty()) {
-            LOGGER.info("No light source JSON files found in {}. No light sources will be loaded.", path);
+            LOGGER.info("No light source JSON files found in {}/valid_lights/. No light sources will be loaded.", TheMurk.MOD_ID);
             return;
         }
 
         int loadedCount = 0;
-        for (Map.Entry<Identifier, net.minecraft.server.packs.resources.Resource> entry : resources.entrySet()) {
+
+        for (Map.Entry<Identifier, Resource> entry : resources.entrySet()) {
             Identifier id = entry.getKey();
-            LOGGER.info("Processing light source JSON: {}", id.getPath());
+            LOGGER.debug("Processing light source JSON: {}", id.getPath());
+
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(entry.getValue().open(), StandardCharsets.UTF_8))) {
 
                 StringBuilder content = new StringBuilder();
                 String line;
-                while ((line = reader.readLine()) != null) content.append(line);
+                while ((line = reader.readLine()) != null) {
+                    content.append(line);
+                }
 
                 Jankson jankson = Jankson.builder().build();
                 JsonObject json = jankson.load(content.toString());
 
-                JsonArray itemsArray = null;
-                Integer luminance = null;
-                Boolean waterSensitive = json.get(Boolean.class, "water_sensitive");
-                if (waterSensitive == null) waterSensitive = false;
+                String itemId = json.get(String.class, "item");
+                if (itemId == null || itemId.trim().isEmpty()) {
+                    LOGGER.warn("Skipping {}: Missing or empty 'item' field", id.getPath());
+                    continue;
+                }
 
-                // Optional: silence errors flag
-                Boolean silenceError = json.get(Boolean.class, "silence_error");
-                if (silenceError == null) silenceError = false;
-
-                // Format detection and normalization
-                if (json.containsKey("match")) {
-                    JsonObject match = json.getObject("match");
-                    Object itemsObj = match.get("items");
-                    itemsArray = new JsonArray();
-                    if (itemsObj instanceof JsonArray) {
-                        itemsArray = (JsonArray) itemsObj;
-                    } else if (itemsObj instanceof JsonPrimitive) {
-                        itemsArray.add((JsonPrimitive) itemsObj);
-                    }
-
-                    Object lum = json.get("luminance");
-                    if (lum instanceof JsonPrimitive) {
-                        luminance = json.get(Integer.class, "luminance");
-                    } else if (lum instanceof JsonObject) {
-                        luminance = mapLuminanceType(json.getObject("luminance"));
-                    }
-
-                } else if (json.containsKey("item")) {
-                    itemsArray = new JsonArray();
-                    itemsArray.add(new JsonPrimitive(Objects.requireNonNull(json.get(String.class, "item"))));
-
-                    Object lum = json.get("luminance");
-                    if (lum instanceof JsonPrimitive) {
+                Integer luminance = json.get(Integer.class, "luminance");
+                if (luminance == null) {
+                    String lumStr = json.get(String.class, "luminance");
+                    if (lumStr != null) {
                         try {
-                            luminance = Integer.parseInt(((JsonPrimitive) lum).asString());
-                        } catch (NumberFormatException e) {
-                            luminance = mapLuminanceType(json.getObject("luminance"));
-                        }
-                    } else if (lum instanceof JsonObject) {
-                        luminance = mapLuminanceType(json.getObject("luminance"));
+                            luminance = Integer.parseInt(lumStr.trim());
+                        } catch (NumberFormatException ignored) {}
                     }
-                } else {
-                    if (!silenceError) LOGGER.warn("Skipping {}: Unrecognized format", id.getPath());
-                    continue;
                 }
 
-                if (itemsArray == null || itemsArray.isEmpty()) {
-                    if (!silenceError) LOGGER.warn("Skipping {}: No valid items found", id.getPath());
-                    continue;
-                }
                 if (luminance == null || luminance < 0 || luminance > 15) {
-                    if (!silenceError) LOGGER.warn("Skipping {}: Invalid luminance {} (must be 0–15)", id.getPath(), luminance);
+                    LOGGER.warn("Skipping {}: Invalid luminance {} (must be integer 0–15)", id.getPath(), luminance);
                     continue;
                 }
 
-                StringBuilder loadedItems = new StringBuilder();
-                for (int i = 0; i < itemsArray.size(); i++) {
-                    Object obj = itemsArray.get(i);
-                    if (!(obj instanceof JsonPrimitive)) continue;
-                    String itemId = ((JsonPrimitive) obj).asString().trim();
-                    if (itemId.isEmpty()) continue;
-                    lightSources.put(itemId, new LightSource(luminance, waterSensitive));
-                    loadedItems.append(itemId).append(", ");
-                    loadedCount++;
+                Boolean waterSensitive = json.get(Boolean.class, "water_sensitive");
+                if (waterSensitive == null) {
+                    waterSensitive = false;
                 }
 
-                if (loadedItems.length() > 0) {
-                    // Remove trailing comma and space
-                    loadedItems.setLength(loadedItems.length() - 2);
-                    LOGGER.info("Loaded from {}: items=[{}], luminance={}, water_sensitive={}",
-                            id.getPath(), loadedItems.toString(), luminance, waterSensitive);
-                } else {
-                    LOGGER.info("No items loaded from {} (empty after processing)", id.getPath());
-                }
+                lightSources.put(itemId, new LightSource(luminance, waterSensitive));
+                loadedCount++;
+
+                LOGGER.debug("Loaded light source from {}: item={}, luminance={}, water_sensitive={}",
+                        id.getPath(), itemId, luminance, waterSensitive);
 
             } catch (Exception e) {
                 LOGGER.error("Failed to process JSON {}: {}", id.getPath(), e.getMessage());
             }
         }
-        LOGGER.info("Light source loading complete. Total unique items registered: {}", loadedCount);
-    }
 
-    private Integer mapLuminanceType(JsonObject lum) {
-        if (lum == null || !lum.containsKey("type")) return null;
-        String type = lum.get(String.class, "type");
-        switch (type) {
-            case "block":
-                String blockId = lum.get(String.class, "block");
-                return getBlockLuminance(blockId);
-            case "block_self":
-                return getSelfBlockLuminance(lum);
-            default:
-                return null;
-        }
-    }
-
-    private Integer getBlockLuminance(String blockId) {
-        Block block = BuiltInRegistries.BLOCK.getValue(Identifier.parse(blockId));
-        if (block == null || block == Blocks.AIR) return null;
-        return block.defaultBlockState().getLightEmission();
-    }
-
-    private Integer getSelfBlockLuminance(JsonObject lum) {
-        // Attempt to resolve from item to block
-        // Example: For "minecraft:torch", this returns torch block luminance
-        try {
-            String itemId = lum.get(String.class, "block"); // assuming block key if needed
-            Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(itemId));
-            Block block = Block.byItem(item);
-            if (block == null || block == Blocks.AIR) return null;
-            return block.defaultBlockState().getLightEmission();
-        } catch (Exception e) {
-            return null;
-        }
+        LOGGER.info("Light source loading complete. Total items registered: {}", loadedCount);
     }
 }

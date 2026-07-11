@@ -4,7 +4,6 @@ import com.enchantedwisp.murk.TheMurk;
 import com.enchantedwisp.murk.registry.DamageTypes;
 import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.util.tracker.PlayerLightTracker;
-import java.util.UUID;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +13,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+
+import java.util.UUID;
 
 public class MurkGraspEffect extends MobEffect {
     private static final UUID SLOW_MOVEMENT_UUID = UUID.fromString("f3b2e1a0-9c7d-4b3e-8f2a-6c5d4e3b2a1f");
