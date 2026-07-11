@@ -21,8 +21,6 @@ import java.util.UUID;
 public class TheMurkClient implements ClientModInitializer {
     private static final Logger LOGGER = LoggerFactory.getLogger(TheMurk.MOD_ID + "_client");
     private static final Map<UUID, Boolean> hadMurkGraspLastTick = new HashMap<>();
-    private static int lastFramebufferWidth = 0;
-    private static int lastFramebufferHeight = 0;
 
     @Override
     public void onInitializeClient() {
@@ -30,7 +28,9 @@ public class TheMurkClient implements ClientModInitializer {
 
         // Register client tick event for tick-based logic only (sounds, vanish sound, effect tracking)
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            PhaseSoundManager.tick();
             ScreenEffectManager.tick();
+
             PlayerEntity player = MinecraftClient.getInstance().player;
             if (player != null) {
                 UUID playerId = player.getUuid();
