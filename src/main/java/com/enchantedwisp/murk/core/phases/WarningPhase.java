@@ -3,12 +3,13 @@ package com.enchantedwisp.murk.core.phases;
 import com.enchantedwisp.murk.core.PhaseHandler;
 import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.util.tracker.PlayerLightTracker;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class WarningPhase implements PhaseHandler {
     private static final Map<UUID, Integer> warningAnimationFrame = new HashMap<>();

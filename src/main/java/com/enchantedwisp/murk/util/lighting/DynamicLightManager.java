@@ -1,10 +1,8 @@
 package com.enchantedwisp.murk.util.lighting;
 
 import com.enchantedwisp.murk.TheMurk;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.server.packs.PackType;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.server.packs.PackType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

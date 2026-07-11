@@ -1,11 +1,12 @@
 package com.enchantedwisp.murk.client.sound;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
 
 public class PhaseSoundManager {
     private static final Map<UUID, PhaseSoundInstance> activeSounds = new HashMap<>();

@@ -1,16 +1,17 @@
 package com.enchantedwisp.murk.core;
 
 import com.enchantedwisp.murk.TheMurk;
-import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.core.phases.*;
 import com.enchantedwisp.murk.registry.Effects;
+import com.enchantedwisp.murk.util.ConfigCache;
 import com.enchantedwisp.murk.util.tracker.PlayerLightTracker;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 
 public class PhaseManager {
     private static final Map<UUID, Phases> playerPhases = new HashMap<>();

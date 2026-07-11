@@ -1,7 +1,8 @@
 package com.enchantedwisp.murk.util.lighting;
 
 import com.enchantedwisp.murk.TheMurk;
-import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.*;
+import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Jankson;
+import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.JsonObject;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -34,7 +35,7 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
         );
 
         if (resources.isEmpty()) {
-            LOGGER.info("No light source JSON files found in {}/validlights/. No light sources will be loaded.", TheMurk.MOD_ID);
+            LOGGER.info("No light source JSON files found in {}/valid_lights/. No light sources will be loaded.", TheMurk.MOD_ID);
             return;
         }
 
@@ -42,7 +43,7 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
 
         for (Map.Entry<ResourceLocation, Resource> entry : resources.entrySet()) {
             ResourceLocation id = entry.getKey();
-            LOGGER.info("Processing light source JSON: {}", id.getPath());
+            LOGGER.debug("Processing light source JSON: {}", id.getPath());
 
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(entry.getValue().open(), StandardCharsets.UTF_8))) {
@@ -86,7 +87,7 @@ public class LightSourceLoader implements SimpleSynchronousResourceReloadListene
                 lightSources.put(itemId, new LightSource(luminance, waterSensitive));
                 loadedCount++;
 
-                LOGGER.info("Loaded light source from {}: item={}, luminance={}, water_sensitive={}",
+                LOGGER.debug("Loaded light source from {}: item={}, luminance={}, water_sensitive={}",
                         id.getPath(), itemId, luminance, waterSensitive);
 
             } catch (Exception e) {
