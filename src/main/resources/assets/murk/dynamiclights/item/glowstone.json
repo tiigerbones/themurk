@@ -1,7 +1,0 @@
-{
-  "match": {
-    "items": "minecraft:glowstone"
-  },
-  "luminance": 15,
-  "water_sensitive": false
-}
