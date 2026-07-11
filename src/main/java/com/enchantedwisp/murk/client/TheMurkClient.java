@@ -25,11 +25,11 @@ public class TheMurkClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         LOGGER.info("Initializing The Murk client");
-
-
         // Register client tick event for tick-based logic only (sounds, vanish sound, effect tracking)
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            PhaseSoundManager.tick();
             ScreenEffectManager.tick();
+
             Player player = Minecraft.getInstance().player;
             if (player != null) {
                 UUID playerId = player.getUUID();
